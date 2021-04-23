@@ -19,6 +19,12 @@ dependencies {
     implementation 'io.confluent:kafka-schema-serializer:6.1.1'
     implementation 'io.confluent:kafka-json-schema-serializer:6.1.1'
     implementation 'io.confluent:kafka-json-schema-provider:6.1.1'
+    implementation 'info.picocli:picocli:4.6.1'
+    annotationProcessor 'info.picocli:picocli-codegen:4.6.1'
+}
+
+compileJava {
+    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
 
 application {
