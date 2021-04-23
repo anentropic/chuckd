@@ -1,4 +1,4 @@
-package chuckd;
+package com.anentropic.chuckd;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,7 +27,7 @@ public class ChuckDTest {
     @Test public void testAppGetReport() throws IOException {
         String arg0 = resourcesPath.resolve("person-1.0.0.json").toFile().getAbsolutePath();
         String arg1 = resourcesPath.resolve("person-1.1.0.json").toFile().getAbsolutePath();
-        String[] args = {arg0, arg1};
+        String[] args = {"-c", "FULL", arg0, arg1};
         cmd.parseArgs(args);
 
         List<String> report = app.getReport();

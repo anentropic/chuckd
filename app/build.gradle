@@ -28,5 +28,5 @@ compileJava {
 }
 
 application {
-    mainClass = 'chuckd.App'
+    mainClass = 'com.anentropic.chuckd.ChuckD'
 }
