@@ -1,6 +1,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'org.mikeneck.graalvm-native-image' version 'v1.3.0'
 }
 
 repositories {
@@ -12,9 +13,10 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.1'
 
-    implementation 'com.google.guava:guava:30.0-jre' // specified by gradle init
+//    implementation 'org.apache.logging.log4j:log4j-core:2.7'
     implementation 'io.confluent:kafka-schema-registry-parent:6.1.1'
     implementation 'io.confluent:kafka-schema-registry:6.1.1'
+    implementation 'io.confluent:kafka-schema-registry-client:6.1.1'
     implementation 'io.confluent:kafka-serde-tools-package:6.1.1'
     implementation 'io.confluent:kafka-schema-serializer:6.1.1'
     implementation 'io.confluent:kafka-json-schema-serializer:6.1.1'
@@ -29,4 +31,36 @@ compileJava {
 
 application {
     mainClass = 'com.anentropic.chuckd.ChuckD'
+}
+
+/*
+ * these parts all prescribed by:
+ * https://github.com/mike-neck/graalvm-native-image-plugin
+ */
+nativeImage {
+    graalVmHome = System.getProperty('java.home')
+    mainClass = 'com.anentropic.chuckd.ChuckD'
+    executableName = 'chuckd'
+    outputDirectory = file("$buildDir/bin")
+    arguments {
+        add '--no-fallback'
+        add '--allow-incomplete-classpath' // uncomment to get runtime error
+        add '--enable-all-security-services'
+        add '--report-unsupported-elements-at-runtime'
+    }
+}
+generateNativeImageConfig {
+    enabled = true
+    byRunningApplication {
+        stdIn("""
+    |total: 2
+    |contents:
+    |  - name: foo
+    |    size: 2052
+    |""".stripMargin())
+    }
+    byRunningApplicationWithoutArguments()
+    byRunningApplication {
+        arguments('-h')
+    }
 }
