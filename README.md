@@ -13,6 +13,30 @@ Just pass the paths of your schema files:
 chuckd <latest schema> <prev schema> [<prev schema> ...]
 ```
 
+```
+chuckd --help
+Usage: chuckd [-hV] [-c=<compatibilityLevel>] <newSchemaFile>
+              [<previousSchemaFiles>...]
+Report evolution compatibility of latest vs existing schema versions.
+      <newSchemaFile>
+      [<previousSchemaFiles>...]
+
+  -c, --compatibility=<compatibilityLevel>
+                        Valid values: BACKWARD, FORWARD, FULL,
+                          BACKWARD_TRANSITIVE, FORWARD_TRANSITIVE,
+                          FULL_TRANSITIVE
+                        Default: FORWARD_TRANSITIVE
+                        'Backward' means new schema can be used to read data
+                          produced by earlier schema.
+                        'Forward' means data produced by new schema can be read
+                          by earlier schema.
+                        'Full' means both forward and backward compatible.
+                        'Transitive' means all earlier schema versions, else
+                          just the previous one.
+  -h, --help            Show this help message and exit.
+  -V, --version         Print version information and exit.
+```
+
 ### Development
 
 Install deps:
@@ -28,6 +52,19 @@ gradle nativeImage
 
 Try it out:
 ```
-$ app/build/bin/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ app/build/bin/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
 Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}
+[chuckd]$ echo $?
+1
+[chuckd]$ app/build/bin/chuckd --compatibility BACKWARD app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ echo $?
+0
 ```
+
+#### TODOs:
+
+- maybe auto-set 'transitivity' based on num of prev schemas passed in 
+- add schema validation
+- add Avro and Protobufs
+- Dockerised build
+- Homebrew package

@@ -36,11 +36,12 @@ class ChuckD implements Callable<Integer> {
 
     @Option(names = {"-c", "--compatibility"},
             defaultValue = "FORWARD_TRANSITIVE",
-            description = "Valid values: ${COMPLETION-CANDIDATES} Default: ${DEFAULT-VALUE}\n" +
+            description = "Valid values: ${COMPLETION-CANDIDATES}\n" +
+                    "Default: ${DEFAULT-VALUE}\n" +
                     "'Backward' means new schema can be used to read data produced by earlier schema.\n" +
                     "'Forward' means data produced by new schema can be read by earlier schema.\n" +
                     "'Full' means both forward and backward compatible.\n" +
-                    "'Transitive' means all earlier schema versions, else just the previous one."
+                    "'Transitive' means check for compatibility against all earlier schema versions, else just the previous one."
     ) CompatibilityLevel compatibilityLevel;
 
     @Parameters(index = "0")    File newSchemaFile;
