@@ -17,11 +17,11 @@ chuckd <latest schema> <prev schema> [<prev schema> ...]
 
 ```
 chuckd --help
-Usage: chuckd [-hV] [-c=<compatibilityLevel>] <newSchemaFile>
-              [<previousSchemaFiles>...]
+Usage: chuckd [-hV] [-c=<compatibilityLevel>] [-l=<logLevel>] <newSchemaFile>
+              <previousSchemaFiles>...
 Report evolution compatibility of latest vs existing schema versions.
       <newSchemaFile>
-      [<previousSchemaFiles>...]
+      <previousSchemaFiles>...
 
   -c, --compatibility=<compatibilityLevel>
                         Valid values: BACKWARD, FORWARD, FULL,
@@ -33,9 +33,12 @@ Report evolution compatibility of latest vs existing schema versions.
                         'Forward' means data produced by new schema can be read
                           by earlier schema.
                         'Full' means both forward and backward compatible.
-                        'Transitive' means all earlier schema versions, else
-                          just the previous one.
+                        'Transitive' means check for compatibility against all
+                          earlier schema versions, else just the previous one.
   -h, --help            Show this help message and exit.
+  -l, --log-level=<logLevel>
+                        Valid values: OFF, ALL, DEBUG, INFO, WARN, ERROR, FATAL
+                        Default: OFF
   -V, --version         Print version information and exit.
 ```
 
@@ -65,7 +68,7 @@ Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NAR
 
 #### TODOs:
 
-- maybe auto-set 'transitivity' based on num of prev schemas passed in 
+- test `$ref` support is working
 - add schema validation
 - add Avro and Protobufs
 - Dockerised build

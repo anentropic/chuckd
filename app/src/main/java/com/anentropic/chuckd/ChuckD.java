@@ -7,11 +7,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import io.confluent.kafka.schemaregistry.CompatibilityChecker;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTimeZone;
 import org.joda.time.tz.UTCProvider;
 import picocli.CommandLine;
@@ -26,6 +31,16 @@ enum CompatibilityLevel {
     BACKWARD_TRANSITIVE,
     FORWARD_TRANSITIVE,
     FULL_TRANSITIVE,
+};
+
+enum LogLevel {
+    OFF,
+    ALL,
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    FATAL,
 };
 
 @Command(name = "chuckd",
@@ -44,8 +59,14 @@ class ChuckD implements Callable<Integer> {
                     "'Transitive' means check for compatibility against all earlier schema versions, else just the previous one."
     ) CompatibilityLevel compatibilityLevel;
 
+    @Option(names = {"-l", "--log-level"},
+            defaultValue = "OFF",
+            description = "Valid values: ${COMPLETION-CANDIDATES}\n" +
+                    "Default: ${DEFAULT-VALUE}"
+    ) LogLevel logLevel;
+
     @Parameters(index = "0")    File newSchemaFile;
-    @Parameters(index = "1..*") File[] previousSchemaFiles;
+    @Parameters(index = "1", arity = "1..*") File[] previousSchemaFiles;
 
     ParsedSchema newSchema;
     List<ParsedSchema> previousSchemas;
@@ -75,6 +96,11 @@ class ChuckD implements Callable<Integer> {
         newSchema = loadSchema(newSchemaFile);
     }
 
+    private void configureRootLogger() {
+        BasicConfigurator.configure();
+        LogManager.getRootLogger().setLevel(Level.toLevel(logLevel.name()));
+    }
+
     public List<String> getReport() throws IOException {
         loadSchemas();
         CompatibilityChecker checker = levelToChecker.get(compatibilityLevel);
@@ -83,17 +109,18 @@ class ChuckD implements Callable<Integer> {
 
     @Override
     public Integer call() throws IOException {
-        // java.io.IOException: Resource not found: "org/joda/time/tz/data/ZoneInfoMap"
-        // https://github.com/dlew/joda-time-android/issues/148
-        // https://gist.github.com/vaughandroid/99ce457e62f74ad9be2f794f014e3c8d
-        DateTimeZone.setProvider(new UTCProvider());
-
+        configureRootLogger();
         List<String> report = getReport();
         report.forEach(System.out::println);
         return report.size();
     }
 
     public static void main(String... args) {
+        // java.io.IOException: Resource not found: "org/joda/time/tz/data/ZoneInfoMap"
+        // https://github.com/dlew/joda-time-android/issues/148
+        // https://gist.github.com/vaughandroid/99ce457e62f74ad9be2f794f014e3c8d
+        DateTimeZone.setProvider(new UTCProvider());
+
         int exitCode = new CommandLine(new ChuckD()).execute(args);
         System.exit(exitCode);
     }
