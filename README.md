@@ -50,7 +50,7 @@ brew install gradle
 brew install --cask graalvm/tap/graalvm-ce-java11
 ```
 
-Build the executable:
+Build the executable locally:
 ```
 gradle nativeImage
 ```
@@ -66,10 +66,20 @@ Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NAR
 0
 ```
 
+To build the Docker image you need to configure 8GB RAM for your docker daemon. Try less if you like but I got errors with 4GB and I see around 6.5GB reported when building locally. (This only applies to *building* the image from scratch, running it should have no special requirements).
+```
+docker build -t anentropic/chuckd .
+```
+
+Try it out:
+```
+docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
+```
+
 #### TODOs:
 
 - test `$ref` support is working
 - add schema validation
 - add Avro and Protobufs
-- Dockerised build
 - Homebrew package
+- automate release builds (GitHub Actions)
