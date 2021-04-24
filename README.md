@@ -1,18 +1,17 @@
 # chuckd
 
-> A schema evolutions validator.
+> A JSON Schema evolutions validator.
 
-Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli tool, so it supports JSON Schema, Avro and Protobuf formats.
+Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli tool, so it could easily be extended to support Avro and Protobuf formats too.
 
 Developed and tested against JDK 11 via Gradle.
 
 ### Usage
 
-For now:
-
-1. Install Gradle
-2. Clone this repo and `cd` into it
-3. `./gradlew run <path to latest schema> <path to prev schema>`
+Just pass the paths of your schema files:
+```
+chuckd <latest schema> <prev schema> [<prev schema> ...]
+```
 
 
 ### Development
@@ -20,4 +19,5 @@ For now:
 ```
 brew install gradle
 brew install --cask graalvm/tap/graalvm-ce-java11
+gradle nativeImage
 ```

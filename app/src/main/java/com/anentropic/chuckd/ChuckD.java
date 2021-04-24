@@ -12,6 +12,8 @@ import java.util.concurrent.Callable;
 import io.confluent.kafka.schemaregistry.CompatibilityChecker;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
+import org.joda.time.DateTimeZone;
+import org.joda.time.tz.UTCProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -80,6 +82,11 @@ class ChuckD implements Callable<Integer> {
 
     @Override
     public Integer call() throws IOException {
+        // java.io.IOException: Resource not found: "org/joda/time/tz/data/ZoneInfoMap"
+        // https://github.com/dlew/joda-time-android/issues/148
+        // https://gist.github.com/vaughandroid/99ce457e62f74ad9be2f794f014e3c8d
+        DateTimeZone.setProvider(new UTCProvider());
+
         List<String> report = getReport();
         report.forEach(System.out::println);
         return report.size();

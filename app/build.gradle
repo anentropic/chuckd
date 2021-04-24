@@ -43,10 +43,12 @@ nativeImage {
     executableName = 'chuckd'
     outputDirectory = file("$buildDir/bin")
     arguments {
+        add '-H:ReflectionConfigurationFiles=src/main/resources/reflection.json'
+//        add '--static'  // Error: DARWIN does not support building static executable images.
         add '--no-fallback'
-        add '--allow-incomplete-classpath' // uncomment to get runtime error
+        add '--allow-incomplete-classpath' // io.netty.util.internal.logging.Log4J2Logger
         add '--enable-all-security-services'
-        add '--report-unsupported-elements-at-runtime'
+//        add '--report-unsupported-elements-at-runtime'
     }
 }
 generateNativeImageConfig {
