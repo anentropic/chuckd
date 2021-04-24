@@ -13,11 +13,21 @@ Just pass the paths of your schema files:
 chuckd <latest schema> <prev schema> [<prev schema> ...]
 ```
 
-
 ### Development
 
+Install deps:
 ```
 brew install gradle
 brew install --cask graalvm/tap/graalvm-ce-java11
+```
+
+Build the executable:
+```
 gradle nativeImage
+```
+
+Try it out:
+```
+$ app/build/bin/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}
 ```
