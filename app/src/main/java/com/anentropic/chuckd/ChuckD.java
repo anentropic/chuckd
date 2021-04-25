@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import io.confluent.kafka.schemaregistry.CompatibilityChecker;
@@ -16,7 +15,6 @@ import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTimeZone;
 import org.joda.time.tz.UTCProvider;
 import picocli.CommandLine;
@@ -46,7 +44,7 @@ enum LogLevel {
 @Command(name = "chuckd",
         mixinStandardHelpOptions = true,
         description = "Report evolution compatibility of latest vs existing schema versions.",
-        versionProvider = ConfigProvider.class)
+        versionProvider = VersionProvider.class)
 class ChuckD implements Callable<Integer> {
 
     @Option(names = {"-c", "--compatibility"},

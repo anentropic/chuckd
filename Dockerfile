@@ -72,6 +72,6 @@ FROM scratch AS chuckd
 VOLUME /schemas
 WORKDIR /schemas
 
-COPY --from=chuckd-builder /home/chuckd/app/build/bin/chuckd /chuckd
+COPY --from=chuckd-builder /home/chuckd/app/build/bin/chuckd /usr/local/bin/chuckd
 
-ENTRYPOINT ["/chuckd"]
+ENTRYPOINT ["chuckd"]

@@ -1,0 +1,140 @@
+name: Release builder
+
+# when a new version tag is pushed by `detect-release` workflow
+# or when manually triggered
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  draft-github-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release-id: ${{ steps.create-release.outputs.id }}
+    steps:
+      - uses: little-core-labs/get-git-tag@v3
+        id: tag-name
+
+      # we'll upload files to it from each of the `build-native-image` matrix jobs
+      # then publish ("un-draft") it at the end
+      - name: Create draft GitHub release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag-name.outputs.tag }}
+          release_name: ${{ steps.tag-name.outputs.tag }}
+          draft: true
+          prerelease: false
+
+  build-native-image:
+    needs: draft-github-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        include:
+          - os: macos-latest
+            platform-name: macOS-x64
+          - os: ubuntu-latest
+            platform-name: Linux-x64
+    steps:
+      - uses: ayltai/setup-graalvm@v1
+        with:
+          java-version: 11
+          graalvm-version: '21.1.0'
+          native-image: true
+
+      - uses: actions/checkout@v2
+      - name: Build GraalVM native-image
+        run: ./gradlew nativeImage
+
+      - uses: little-core-labs/get-git-tag@v3
+        id: tag-name
+        with:
+          tagRegex: "v(.*)"
+
+      - id: set-path
+        run: echo "::set-output name=path::chuckd-${{ matrix.platform-name }}-${{ steps.tag-name.outputs.tag }}.tar.gz"
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: chuckd-${{ matrix.platform-name }}-${{ steps.tag-name.outputs.tag }}
+#          path: app/build/bin/chuckd
+
+      - name: .tar.gz artifact
+        uses: master-atul/tar-action@v1.0.2
+        id: compress
+        with:
+          command: c
+          cwd: ./app/build/bin/
+          files: |
+            chuckd
+          outPath: ${{ steps.set-path.outputs.path }}
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./app/build/bin/${{ steps.set-path.outputs.path }}
+          asset_name: ${{ steps.set-path.outputs.path }}
+          asset_content_type: application/gzip
+
+  publish-github-release:
+    needs: build-native-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: eregon/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ jobs.draft-github-release.outputs.release-id }}
+
+  build-docker-image:
+    needs: get-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # build a multi-arch image
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+
+      # generate docker image tags from the git tag
+      # as recommended by the official docker action:
+      # https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
+      - name: Docker meta
+        id: meta
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: anentropic/chuckd
+          tags: type=semver,pattern={{version}}
+
+      - uses: docker/login-action@v1
+        with:
+          username: anentropic
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Push README to Dockerhub
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_USER: anentropic
+          DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+        with:
+          destination_container_repo: anentropic/chuckd
+          provider: dockerhub
+          short_description: 'Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'
+          readme_file: 'dockerhub.md'

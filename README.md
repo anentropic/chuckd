@@ -8,7 +8,7 @@ Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema
 
 Developed and tested against JDK 11 via Gradle.
 
-### Usage
+## Usage
 
 Just pass the paths of your schema files:
 ```
@@ -42,15 +42,27 @@ Report evolution compatibility of latest vs existing schema versions.
   -V, --version         Print version information and exit.
 ```
 
-### Development
+## Development
 
-Install deps:
+### Install pre-requisites
 ```
 brew install gradle
 brew install --cask graalvm/tap/graalvm-ce-java11
+gu install native-image
 ```
 
-Build the executable locally:
+### Build and test project
+```
+gradle build
+```
+...this compiles the project and runs the tests.
+
+It also generates `app/build/scripts/app` shell script which wraps `java` + jar and should be runnable as if it was the `chuckd` cli tool, if your local `$JAVA_HOME` etc are set up correctly. (I didn't get it working, but I didn't try very hard...)
+
+### Build the binary
+
+Much slower to compile, but more appealing, we can use GraalVM to build a native image (which will be output in `app/build/bin/chuckd`)
+
 ```
 gradle nativeImage
 ```
@@ -66,7 +78,25 @@ Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NAR
 0
 ```
 
-To build the Docker image you need to configure 8GB RAM for your docker daemon. Try less if you like but I got errors with 4GB and I see around 6.5GB reported when building locally. (This only applies to *building* the image from scratch, running it should have no special requirements).
+#### Test the binary
+
+Despite all the static typing in Java, it's still dynamic enough that you can compile a native image that craps out at runtime.
+
+So we have some "smoke" tests that check you can perform basic operations with the binary.
+
+We're using [BATS](https://bats-core.readthedocs.io/en/latest/) Bash test framework:
+```
+brew install bats-core
+```
+
+To run the tests:
+```
+bats bin-tests/smoke.bats
+```
+
+### Build the Docker image
+
+To build the Docker image you need to configure 8 GB RAM for your docker daemon. Try less if you like, but I got errors with 4 GB, and I see around 6.5 GB reported when building locally. (This only applies to *building* the image from scratch, running it should have no special requirements).
 ```
 docker build -t anentropic/chuckd .
 ```
@@ -76,10 +106,9 @@ Try it out:
 docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
 ```
 
-#### TODOs:
+### TODOs:
 
 - test `$ref` support is working
-- add schema validation
-- add Avro and Protobufs
+- add schema validation by default
+- add Avro and Protobuf support
 - Homebrew package
-- automate release builds (GitHub Actions)
