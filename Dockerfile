@@ -26,8 +26,8 @@ WORKDIR /home/gradle
 
 # I guess if we ever need to install a dependency via bzr SCM from gradle
 # we have to find a source for bzr package, for now it seems non-essential
-RUN microdnf update \
-    && microdnf install \
+RUN microdnf update
+RUN microdnf install \
         fontconfig \
         unzip \
         wget \
@@ -36,7 +36,7 @@ RUN microdnf update \
         git \
         git-lfs \
         mercurial \
-        openssh-clients.x86_64 \
+        openssh-clients \
         subversion \
     && microdnf clean all
 
