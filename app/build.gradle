@@ -44,11 +44,16 @@ nativeImage {
     outputDirectory = file("$buildDir/bin")
     arguments {
         add '-H:ReflectionConfigurationFiles=src/main/resources/reflection.json'
-//        add '--static'  // Error: DARWIN does not support building static executable images.
         add '--no-fallback'
-        add '--allow-incomplete-classpath' // io.netty.util.internal.logging.Log4J2Logger
         add '--enable-all-security-services'
 //        add '--report-unsupported-elements-at-runtime'
+        if (project.hasProperty("static") && project.getProperty("static")) {
+            // Error: DARWIN does not support building static executable images.
+            add '--static'
+        }
+        // Suppress compile-time error: io.netty.util.internal.logging.Log4J2Logger
+        // (I guess not used at runtime currently)
+        add '--allow-incomplete-classpath'
     }
 }
 generateNativeImageConfig {

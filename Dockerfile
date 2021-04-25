@@ -65,13 +65,13 @@ WORKDIR /home/chuckd
 COPY ./app ./app
 COPY ./settings.gradle ./settings.gradle
 
-RUN gradle --no-daemon nativeImage
+RUN gradle --no-daemon -Pstatic=true nativeImage
 
-FROM oraclelinux:8-slim AS chuckd
-
-COPY --from=chuckd-builder /home/chuckd/app/build/bin/chuckd /usr/local/bin/chuckd
+FROM scratch AS chuckd
 
 VOLUME /schemas
 WORKDIR /schemas
 
-ENTRYPOINT ["chuckd"]
+COPY --from=chuckd-builder /home/chuckd/app/build/bin/chuckd /chuckd
+
+ENTRYPOINT ["/chuckd"]
