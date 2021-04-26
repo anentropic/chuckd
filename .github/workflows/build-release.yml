@@ -51,9 +51,9 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         include:
           - os: macos-latest
-            platform-name: macOS-x64
+            platform-name: macOS-amd64
           - os: ubuntu-latest
-            platform-name: Linux-x64
+            platform-name: Linux-amd64
     steps:
       - uses: ayltai/setup-graalvm@v1
         with:
