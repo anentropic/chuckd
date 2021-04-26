@@ -116,11 +116,13 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: |
+            linux/amd64
+            linux/arm64
           push: true
           tags: |
-            ${{ needs.draft-github-release.outputs.version }}
-            latest
+            anentropic/chuckd:${{ needs.draft-github-release.outputs.version }}
+            anentropic/chuckd:latest
           labels: |
             org.opencontainers.image.title=chuckd
             org.opencontainers.image.description=${{ steps.metadata.outputs.short-description }}
