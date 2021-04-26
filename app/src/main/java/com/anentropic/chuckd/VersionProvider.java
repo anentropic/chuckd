@@ -8,21 +8,21 @@ import java.util.Properties;
 import picocli.CommandLine;
 
 
-public class ConfigProvider implements CommandLine.IVersionProvider {
+public class VersionProvider implements CommandLine.IVersionProvider {
 
     Properties properties = new Properties();
 
-    public ConfigProvider() throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("chuckd.properties");
+    public VersionProvider() throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("version.properties");
         if (inputStream != null) {
             properties.load(inputStream);
         } else {
-            throw new FileNotFoundException("'chuckd.properties' not found in the classpath");
+            throw new FileNotFoundException("'version.properties' not found in the classpath");
         }
     }
 
     @Override
     public String[] getVersion() {
-        return new String[] { properties.getProperty("version") };
+        return new String[] { properties.getProperty("version.semver") };
     }
 }
