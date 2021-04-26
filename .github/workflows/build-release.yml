@@ -7,15 +7,28 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: Git tag we're manually triggering for
+        required: true
 
 jobs:
   draft-github-release:
     runs-on: ubuntu-latest
     outputs:
       release-id: ${{ steps.create-release.outputs.id }}
+      version: ${{ steps.tag-name.outputs.version }}
+      upload-url: ${{ steps.create-release.outputs.upload_url }}
     steps:
-      - uses: little-core-labs/get-git-tag@v3
-        id: tag-name
+      - uses: little-core-labs/get-git-tag@v3.0.2
+        id: get-tag
+      - run: 'echo "tag: ${{ steps.get-tag.outputs.tag }}"'
+        if: 'steps.get-tag.outputs.tag'
+      - run: 'echo "manual version: ${{ github.event.inputs.version }}"'
+        if: '!steps.tag-name.outputs.tag'
+
+      - id: tag-name
+        run: echo "::set-output name=version::${{ steps.get-tag.outputs.tag || github.event.inputs.version }}"
 
       # we'll upload files to it from each of the `build-native-image` matrix jobs
       # then publish ("un-draft") it at the end
@@ -25,8 +38,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag-name.outputs.tag }}
-          release_name: ${{ steps.tag-name.outputs.tag }}
+          tag_name: ${{ steps.tag-name.outputs.version }}
+          release_name: ${{ steps.tag-name.outputs.version }}
           draft: true
           prerelease: false
 
@@ -52,81 +65,71 @@ jobs:
       - name: Build GraalVM native-image
         run: ./gradlew nativeImage
 
-      - uses: little-core-labs/get-git-tag@v3
-        id: tag-name
-        with:
-          tagRegex: "v(.*)"
-
-      - id: set-path
-        run: echo "::set-output name=path::chuckd-${{ matrix.platform-name }}-${{ steps.tag-name.outputs.tag }}.tar.gz"
-
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: chuckd-${{ matrix.platform-name }}-${{ steps.tag-name.outputs.tag }}
-#          path: app/build/bin/chuckd
+      - name: Set artifact name
+        id: name-artifact
+        run: echo "::set-output name=name::chuckd-${{ matrix.platform-name }}-${{ needs.draft-github-release.outputs.version }}.tar.gz"
 
       - name: .tar.gz artifact
-        uses: master-atul/tar-action@v1.0.2
-        id: compress
-        with:
-          command: c
-          cwd: ./app/build/bin/
-          files: |
-            chuckd
-          outPath: ${{ steps.set-path.outputs.path }}
+        run: (cd ./app/build/bin/ && tar -czvf ${{ steps.name-artifact.outputs.name }} chuckd)
 
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app/build/bin/${{ steps.set-path.outputs.path }}
-          asset_name: ${{ steps.set-path.outputs.path }}
+          upload_url: ${{ needs.draft-github-release.outputs.upload-url }}
+          asset_path: ./app/build/bin/${{ steps.name-artifact.outputs.name }}
+          asset_name: ${{ steps.name-artifact.outputs.name }}
           asset_content_type: application/gzip
 
   publish-github-release:
-    needs: build-native-image
+    needs: [draft-github-release, build-native-image]
     runs-on: ubuntu-latest
     steps:
       - uses: eregon/publish-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release_id: ${{ jobs.draft-github-release.outputs.release-id }}
+          release_id: ${{ needs.draft-github-release.outputs.release-id }}
 
   build-docker-image:
-    needs: get-version
+    needs: draft-github-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      # build a multi-arch image
+      - name: Prepare image metadata
+        id: metadata
+        run: |
+          echo ::set-output name=timestamp::$(date -u +%Y-%m-%dT%H:%M:%S%z) \
+          && echo ::set-output name=git-commit::$(/usr/bin/git log -1 --format='%H') \
+          && echo ::set-output name=short-description::'Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'
+
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-
-      # generate docker image tags from the git tag
-      # as recommended by the official docker action:
-      # https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
-      - name: Docker meta
-        id: meta
-        uses: crazy-max/ghaction-docker-meta@v2
-        with:
-          images: anentropic/chuckd
-          tags: type=semver,pattern={{version}}
 
       - uses: docker/login-action@v1
         with:
           username: anentropic
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push multi-arch image
         uses: docker/build-push-action@v2
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ needs.draft-github-release.outputs.version }}
+            latest
+          labels: |
+            org.opencontainers.image.title=chuckd
+            org.opencontainers.image.description=${{ steps.metadata.outputs.short-description }}
+            org.opencontainers.image.url=https://hub.docker.com/r/anentropic/chuckd
+            org.opencontainers.image.source=https://github.com/anentropic/chuckd
+            org.opencontainers.image.version=${{ needs.draft-github-release.outputs.version }}
+            org.opencontainers.image.created=${{ steps.metadata.outputs.timestamp }}
+            org.opencontainers.image.revision=${{ steps.metadata.outputs.git-commit }}
+            org.opencontainers.image.licenses=Apache-2.0
 
       - name: Push README to Dockerhub
         uses: christian-korneck/update-container-description-action@v1
@@ -136,5 +139,5 @@ jobs:
         with:
           destination_container_repo: anentropic/chuckd
           provider: dockerhub
-          short_description: 'Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'
+          short_description: ${{ steps.metadata.outputs.short-description }}
           readme_file: 'dockerhub.md'
