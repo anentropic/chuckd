@@ -35,7 +35,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build GraalVM native-image
         run: ./gradlew nativeImage
-      - run: echo "./app/build/bin/" >> $GITHUB_PATH
 
       - uses: mig4/setup-bats@v1
         with:
