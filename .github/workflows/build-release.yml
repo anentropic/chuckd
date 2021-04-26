@@ -137,7 +137,7 @@ jobs:
         uses: christian-korneck/update-container-description-action@v1
         env:
           DOCKER_USER: anentropic
-          DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_PASS: ${{ secrets.DOCKERHUB_PASSWORD }}
         with:
           destination_container_repo: anentropic/chuckd
           provider: dockerhub
