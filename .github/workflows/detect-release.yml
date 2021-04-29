@@ -1,5 +1,10 @@
 name: Detect & tag release
 
+# TODO: this does not work currently
+# seems like the changed file filter never matches for some reason
+# dispatching manually does work, but doesn't trigger the build-release
+# action for some reason (which should be triggered by the git tag push)
+
 # on push to `main` but only if the version file changed
 on:
   push:

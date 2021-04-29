@@ -72,7 +72,8 @@ jobs:
       # https://github.com/actions/virtual-environments/issues/2619
       # without this the file is corrupted and gives "exec format error" after extracting
       - name: work-around for macOS tar.gz issue
-      - run: sudo /usr/sbin/purge
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: sudo /usr/sbin/purge
 
       - name: .tar.gz artifact
         run: (cd ./app/build/bin/ && tar -czvf ${{ steps.name-artifact.outputs.name }} chuckd)
