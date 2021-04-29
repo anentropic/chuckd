@@ -4,11 +4,25 @@
 
 ![chuckd thug life](https://user-images.githubusercontent.com/147840/115955507-c4736280-a4ee-11eb-8638-8ac09e3b42f3.gif)
 
-Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. BYO schema registry, this just validates schema evolutions. At the moment only JSON Schema is implemented, but the Confluent registry supports Avro and Protobuf too, so they can be easily added.
+Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. BYO schema registry - this just validates schema evolutions. At the moment only JSON Schema is implemented, but the Confluent registry supports Avro and Protobuf too, so they'll be added here at some point.
 
-Developed and tested against JDK 11 via Gradle.
+Developed and tested against JDK 11, native image built with GraalVM.
 
-## Usage
+## Getting started
+
+### Install
+
+We have pre-built binaries available for x86-64 Linux and macOS, available at:  
+https://github.com/anentropic/chuckd/releases
+
+Just download, extract `chuckd` and put it on your `$PATH` somewhere, e.g. `/usr/local/bin`.
+
+Alternatively we have a multi-arch (amd64 / arm64) Docker image `anentropic/chuckd` available on Docker Hub:  
+https://hub.docker.com/r/anentropic/chuckd/tags
+
+This latter could be a good option if you are on Apple Silicon as the arm64 image will run natively.
+
+### Usage
 
 Just pass the paths of your schema files:
 ```
@@ -42,13 +56,20 @@ Report evolution compatibility of latest vs existing schema versions.
   -V, --version         Print version information and exit.
 ```
 
+For Docker the usage is essentially the same, but you need to mount a volume containing your schema files as `/schemas` in the container:
+```
+docker run -v /path/to/my/schemas:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
+```
+
 ## Development
 
 ### Install pre-requisites
 ```
 brew install gradle
 brew install --cask graalvm/tap/graalvm-ce-java11
-gu install native-image
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Contents/Home
+export GRAALHOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Contents/Home
+$GRAALHOME/bin/gu install native-image
 ```
 
 ### Build and test project
@@ -91,7 +112,7 @@ brew install bats-core
 
 To run the tests:
 ```
-bats bin-tests/smoke.bats
+bats bat-tests/smoke.bats
 ```
 
 ### Build the Docker image
@@ -108,7 +129,5 @@ docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.
 
 ### TODOs:
 
-- test `$ref` support is working
-- add schema validation by default
 - add Avro and Protobuf support
 - Homebrew package

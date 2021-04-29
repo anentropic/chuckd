@@ -1,0 +1,10 @@
+{
+  "$id": "https://example.com/people.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$version": "1.1",
+  "title": "People",
+  "type": "array",
+  "items": {
+    "$ref": "https://raw.githubusercontent.com/anentropic/chuckd/6534304/app/src/test/resources/person-1.1.0.json#"
+  }
+}
