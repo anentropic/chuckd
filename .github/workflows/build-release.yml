@@ -51,9 +51,9 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         include:
           - os: macos-latest
-            platform-name: macOS-amd64
+            platform-name: macOS-x86_64
           - os: ubuntu-latest
-            platform-name: Linux-amd64
+            platform-name: Linux-x86_64
     steps:
       - uses: ayltai/setup-graalvm@v1
         with:
@@ -68,6 +68,11 @@ jobs:
       - name: Set artifact name
         id: name-artifact
         run: echo "::set-output name=name::chuckd-${{ matrix.platform-name }}-${{ needs.draft-github-release.outputs.version }}.tar.gz"
+
+      # https://github.com/actions/virtual-environments/issues/2619
+      # without this the file is corrupted and gives "exec format error" after extracting
+      - name: work-around for macOS tar.gz issue
+      - run: sudo /usr/sbin/purge
 
       - name: .tar.gz artifact
         run: (cd ./app/build/bin/ && tar -czvf ${{ steps.name-artifact.outputs.name }} chuckd)
@@ -123,6 +128,8 @@ jobs:
           tags: |
             anentropic/chuckd:${{ needs.draft-github-release.outputs.version }}
             anentropic/chuckd:latest
+          # https://github.com/crazy-max/ghaction-docker-meta/blob/1a678de43d82fbc865fe8fe6b8586fa82d9596aa/src/meta.ts#L350
+          # https://github.com/opencontainers/image-spec/blob/master/annotations.md#pre-defined-annotation-keys
           labels: |
             org.opencontainers.image.title=chuckd
             org.opencontainers.image.description=${{ steps.metadata.outputs.short-description }}

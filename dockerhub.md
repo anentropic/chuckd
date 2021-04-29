@@ -9,7 +9,7 @@ See https://github.com/anentropic/chuckd for details.
 To use this image:
 - mount the dir containing your schema files as `/schemas` in the container
 - pass the filenames of two or more schema versions
-- the new schema version being validated should be left-most, followed by earlier versions
+- the new schema version should be left-most, followed by previous versions of the schema to check against, in oldest->newest order.
 - (the files should all be versions of the same schema)
 - no output (exit: `0`) means the versions are compatible
 - if they are incompatible a non-zero exit code will be returned, and some info about the problem is printed like:  `Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}`

@@ -63,8 +63,15 @@ class ChuckD implements Callable<Integer> {
                     "Default: ${DEFAULT-VALUE}"
     ) LogLevel logLevel;
 
-    @Parameters(index = "0")    File newSchemaFile;
-    @Parameters(index = "1", arity = "1..*") File[] previousSchemaFiles;
+    @Parameters(
+            index = "0",
+            description = "New version of the schema to compare for compatibility."
+    ) File newSchemaFile;
+    @Parameters(
+            index = "1",
+            arity = "1..*",
+            description = "Previous version(s) of the schema in oldest->newest order."
+    ) File[] previousSchemaFiles;
 
     ParsedSchema newSchema;
     List<ParsedSchema> previousSchemas;

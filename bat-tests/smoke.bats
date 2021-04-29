@@ -12,13 +12,13 @@ res_path="app/src/test/resources"
 }
 
 @test "compatible schemas -> returns exit 0" {
-  run ${bin_path}/chuckd -c BACKWARD ${res_path}/person-1.1.0.json ${res_path}/person-1.0.0.json
+  run ${bin_path}/chuckd -c BACKWARD ${res_path}/person-base.json ${res_path}/person-narrowed.json
   [ "$status" -eq 0 ]
   [ "$output" = "" ]
 }
 
 @test "incompatible schemas -> returns exit >0 and error" {
-  run ${bin_path}/chuckd -c FORWARD ${res_path}/person-1.1.0.json ${res_path}/person-1.0.0.json
+  run ${bin_path}/chuckd -c FORWARD ${res_path}/person-base.json ${res_path}/person-narrowed.json
   [ "$status" -eq 1 ]
   [[ "$output" = "Found incompatible change:"* ]]
 }

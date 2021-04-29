@@ -43,7 +43,7 @@ jobs:
       - run: mkdir bats-report
 
       - name: Smoke-test native image
-        run: bats --report-formatter junit --output bats-report ./bin-tests/smoke.bats
+        run: bats --report-formatter junit --output bats-report ./bat-tests/smoke.bats
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v1
