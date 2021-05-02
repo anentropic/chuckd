@@ -45,7 +45,7 @@ This _should_ have been the easiest option, unfortunately the GraalVM native-ima
 2. follow the post-install instructions to configure your `JAVA_HOME` env and add the GraalVM bin dir to your `PATH` (see https://github.com/graalvm/homebrew-tap for more details)
 3. `gu install native-image`
 
-After all that you should be able to `brew install anentropic/tap/chuckd`
+After all that, you should be able to `brew install anentropic/tap/chuckd`.
 
 ## Usage
 

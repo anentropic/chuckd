@@ -7,24 +7,10 @@ on:
       - published
 
 jobs:
-  update-tap-formula:
-    name: Update formula in Homebrew tap
-    runs-on: ubuntu-latest
-    steps:
-      - name: Update the Homebrew formula with latest release
-        uses: NSHipster/update-homebrew-formula-action@main
-        with:
-          repository: anentropic/chuckd
-          tap: anentropic/homebrew-tap
-          formula: chuckd.rb
-        env:
-          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   build-and-upload-bottle:
     name: Build and upload Homebrew bottle for macOS Catalina
     # TODO: matrix when Big Sur runners are generally available
     runs-on: macos-10.15
-    needs: update-tap-formula
     outputs:
       macos-version: Catalina
     steps:
@@ -60,8 +46,8 @@ jobs:
           asset_name: chuckd-${{ github.event.release.tag_name }}.catalina.bottle.tar.gz
           asset_content_type: application/gzip
 
-  update-formula-bottle:
-    name: Update the Homebrew formula again with bottle
+  update-formula-tap-bottle:
+    name: Update the Homebrew formula with new version and bottle
     runs-on: ubuntu-latest
     needs: build-and-upload-bottle
     steps:
