@@ -3,7 +3,7 @@ name: Detect & tag release
 on:
   # on push to `main` but only if the version file changed
   push:
-    branches: [ $default-branch ]
+    branches: [ main ]
     # TODO: seems like the changed file filter never matches for some reason
     # ...maybe because merging a PR containing the change doesn't count as a push?
     paths:
