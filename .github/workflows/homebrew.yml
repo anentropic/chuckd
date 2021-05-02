@@ -37,18 +37,17 @@ jobs:
           graalvm-version: '21.1.0'
           native-image: true
 
-      # https://github.com/actions/virtual-environments/issues/2619
-      # without this the file is corrupted and gives "exec format error" after extracting
-      - name: work-around for macOS tar.gz issue
-        run: sudo /usr/sbin/purge
-
       - name: Build a bottle using Homebrew
         env:
           # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
           # in the restricted env during brew install
           HOMEBREW_GRAALVM_HOME: ${{ env.GRAALVM_HOME }}
+        # https://github.com/actions/virtual-environments/issues/2619
+        # `sudo /usr/sbin/purge` to prevent "exec format error" after extracting
         run: |
+          sudo /usr/sbin/purge
           brew install --build-bottle --verbose anentropic/tap/chuckd
+          sudo /usr/sbin/purge
           brew bottle anentropic/tap/chuckd
 
       - name: Upload the bottle to the GitHub release
