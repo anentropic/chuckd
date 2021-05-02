@@ -4,7 +4,7 @@ name: Homebrew build & release
 on:
   release:
     types:
-      - published
+      - created
 
 jobs:
   update-tap-formula:

@@ -36,7 +36,7 @@ jobs:
         id: create-release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           tag_name: ${{ steps.tag-name.outputs.version }}
           release_name: ${{ steps.tag-name.outputs.version }}
@@ -80,7 +80,7 @@ jobs:
 
       - uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ needs.draft-github-release.outputs.upload-url }}
           asset_path: ./app/build/bin/${{ steps.name-artifact.outputs.name }}
@@ -93,7 +93,7 @@ jobs:
     steps:
       - uses: eregon/publish-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           release_id: ${{ needs.draft-github-release.outputs.release-id }}
 
