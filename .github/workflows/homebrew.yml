@@ -36,6 +36,12 @@ jobs:
           java-version: 11
           graalvm-version: '21.1.0'
           native-image: true
+
+      # https://github.com/actions/virtual-environments/issues/2619
+      # without this the file is corrupted and gives "exec format error" after extracting
+      - name: work-around for macOS tar.gz issue
+        run: sudo /usr/sbin/purge
+
       - name: Build a bottle using Homebrew
         env:
           # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
@@ -44,6 +50,7 @@ jobs:
         run: |
           brew install --build-bottle --verbose anentropic/tap/chuckd
           brew bottle anentropic/tap/chuckd
+
       - name: Upload the bottle to the GitHub release
         uses: actions/upload-release-asset@v1.0.1
         env:
