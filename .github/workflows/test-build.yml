@@ -32,6 +32,11 @@ jobs:
           graalvm-version: '21.1.0'
           native-image: true
 
+      - run: echo $PATH
+      - run: echo $JAVA_HOME
+      - run: echo $GRAALVM_HOME
+      - run: which native-image
+
       - uses: actions/checkout@v2
       - name: Build GraalVM native-image
         run: ./gradlew nativeImage
