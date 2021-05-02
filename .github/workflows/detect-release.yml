@@ -4,11 +4,8 @@ on:
   # on push to `main` but only if the version file changed
   push:
     branches: [ main ]
-    # TODO: seems like the changed file filter never matches for some reason
-    # ...maybe because merging a PR containing the change doesn't count as a push?
     paths:
       - 'app/src/main/resources/version.properties'
-  # dispatching manually does work though
   workflow_dispatch:
 
 jobs:

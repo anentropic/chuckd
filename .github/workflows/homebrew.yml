@@ -1,10 +1,10 @@
-name: Release
+name: Homebrew build & release
 
 # releases are created by build-release workflow
 on:
   release:
     types:
-      - created
+      - published
 
 jobs:
   update-tap-formula:
