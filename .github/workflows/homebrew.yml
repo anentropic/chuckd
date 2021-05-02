@@ -38,7 +38,6 @@ jobs:
           native-image: true
       - name: Build a bottle using Homebrew
         run: |
-          brew tap mona/formulae
           brew install --build-bottle --verbose anentropic/tap/chuckd
           brew bottle anentropic/tap/chuckd
       - name: Upload the bottle to the GitHub release
