@@ -37,6 +37,10 @@ jobs:
           graalvm-version: '21.1.0'
           native-image: true
       - name: Build a bottle using Homebrew
+        env:
+          # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
+          # in the restricted env during brew install
+          HOMEBREW_GRAALVM_HOME: ${{ env.GRAALVM_HOME }}
         run: |
           brew install --build-bottle --verbose anentropic/tap/chuckd
           brew bottle anentropic/tap/chuckd

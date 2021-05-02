@@ -24,7 +24,7 @@ jobs:
       - name: Push version git tag
         uses: julb/action-manage-tag@v1
         with:
-          name: v${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
           state: present
         env:
           # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push
