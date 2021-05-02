@@ -10,7 +10,6 @@ jobs:
   update-tap-formula:
     name: Update formula in Homebrew tap
     runs-on: ubuntu-latest
-    needs: draft-github-release
     steps:
       - name: Update the Homebrew formula with latest release
         uses: NSHipster/update-homebrew-formula-action@main
