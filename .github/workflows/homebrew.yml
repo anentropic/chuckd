@@ -19,9 +19,6 @@ jobs:
           formula: chuckd.rb
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      - run: ls -la /github/workspace/Homebrew/Library/
-      - run: ls -la /github/workspace/Homebrew/
-      - run: ls -la /github/workspace/
 
   build-and-upload-bottle:
     name: Build and upload Homebrew bottle for macOS Catalina
