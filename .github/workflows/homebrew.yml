@@ -12,13 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update the Homebrew formula with latest release
-        uses: anentropic/update-homebrew-formula-action@pull-14
+        uses: anentropic/update-homebrew-formula-action@fixes-for-linter
         with:
           repository: anentropic/chuckd
           tap: anentropic/homebrew-tap
           formula: chuckd.rb
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - run: ls -la /github/workspace/Homebrew/Library/
+      - run: ls -la /github/workspace/Homebrew/
+      - run: ls -la /github/workspace/
 
   build-and-upload-bottle:
     name: Build and upload Homebrew bottle for macOS Catalina
@@ -67,7 +70,7 @@ jobs:
     steps:
       # TODO: see https://github.com/SwiftDocOrg/swift-doc/blob/master/.github/workflows/publish.yml#L61
       # for multi version workflow once Bug Sur runners are generally available
-      - uses: anentropic/update-homebrew-formula-action@pull-14
+      - uses: anentropic/update-homebrew-formula-action@fixes-for-linter
         with:
           repository: anentropic/chuckd
           tap: anentropic/homebrew-tap
