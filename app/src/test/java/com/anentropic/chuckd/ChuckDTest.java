@@ -99,6 +99,20 @@ public class ChuckDTest {
 
     @ParameterizedTest
     @CsvSource({
+            "person-base.json, person-narrowed.json, person-base.json",
+    })
+    public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
+        List<String> report = getReport(
+                new String[] {"-c", "FORWARD_TRANSITIVE"},
+                resources
+        );
+
+        assertEquals(1, report.size());
+        assertEquals("Found incompatible change: Difference{jsonPath='#/properties/lastName/maxLength', type=MAX_LENGTH_ADDED}", report.get(0));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
             "person-base.json, person-widened.json",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
@@ -126,6 +140,20 @@ public class ChuckDTest {
         );
 
         assertEquals(0, report.size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "person-base.json, person-widened.json, person-base.json",
+    })
+    public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
+        List<String> report = getReport(
+                new String[] {"-c", "BACKWARD_TRANSITIVE"},
+                resources
+        );
+
+        assertEquals(1, report.size());
+        assertEquals("Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}", report.get(0));
     }
 
     @ParameterizedTest
@@ -168,6 +196,32 @@ public class ChuckDTest {
                 resources
         );
         assertEquals(0, report.size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "lastName/maxLength, MAX_LENGTH_ADDED, person-base.json, person-narrowed.json, person-base.json",  // incompatibility in -> direction
+            "age, TYPE_NARROWED, person-base.json, person-widened.json, person-base.json",  // incompatibility in <- direction
+    })
+    public void testFullTransitiveIncompatible(
+            String expectedPath,
+            String expectedType,
+            @AggregateWith(VarargsAggregator.class) String... resources
+    ) throws IOException {
+        List<String> report = getReport(
+                new String[] {"-c", "FULL_TRANSITIVE"},
+                resources
+        );
+
+        assertEquals(1, report.size());
+        assertEquals(
+                String.format(
+                        "Found incompatible change: Difference{jsonPath='#/properties/%s', type=%s}",
+                        expectedPath,
+                        expectedType
+                ),
+                report.get(0)
+        );
     }
 
     @ParameterizedTest
