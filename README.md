@@ -33,13 +33,15 @@ This will be the easiest option in many cases, particularly for macOS users.
 
 ### macOS
 
-We also have pre-built binaries for x86_64 macOS, but by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
+We do have pre-built binaries for x86_64 macOS, **but** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
 
-It seems like this bin will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 macbook), but you might need to prepend `arch -x86_64` the first time you run it.
+It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 macbook), but you might need to prepend `arch -x86_64` the first time you run it.
 
-We also have a Homebrew tap...
+We also have a Homebrew tap... This _should_ have been the easiest option.
 
-This _should_ have been the easiest option, unfortunately the GraalVM native-image builder toolchain has to be set up manually first:
+For **Catalina** users we are able to build a `bottle` (pre-built binary) so you should be able to just `brew install anentropic/tap/chuckd` as intended. As soon as GitHub Actions provides us with Big Sur runners we will start building bottles for Big Sur too.
+
+Unfortunately if there is no bottle available (all versions of macOS other than Catalina currently) then we have to build from source, and this means the GraalVM native-image builder toolchain has to be set up manually first:
 
 1. `brew install --cask graalvm/tap/graalvm-ce-java11`
 2. follow the post-install instructions to configure your `JAVA_HOME` env and add the GraalVM bin dir to your `PATH` (see https://github.com/graalvm/homebrew-tap for more details)
