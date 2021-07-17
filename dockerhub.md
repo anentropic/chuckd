@@ -44,7 +44,7 @@ Report evolution compatibility of latest vs existing schema versions.
                         'Transitive' means check for compatibility against all
                           earlier schema versions, else just the previous one.
   -f, --format=<schemaFormat>
-                        Valid values: JSONSCHEMA, AVRO
+                        Valid values: JSONSCHEMA, AVRO, PROTOBUF
                         Default: JSONSCHEMA
                         Format of schema versions being checked
   -h, --help            Show this help message and exit.
