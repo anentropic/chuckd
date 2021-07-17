@@ -140,6 +140,10 @@ jobs:
             org.opencontainers.image.created=${{ steps.metadata.outputs.timestamp }}
             org.opencontainers.image.revision=${{ steps.metadata.outputs.git-commit }}
             org.opencontainers.image.licenses=Apache-2.0
+            linux
+            x86_64
+            arm64
+            amd64
 
       - name: Push README to Dockerhub
         uses: christian-korneck/update-container-description-action@v1

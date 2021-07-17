@@ -1,6 +1,7 @@
 package com.anentropic.chuckd;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -9,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.confluent.kafka.schemaregistry.AbstractSchemaProvider;
 import io.confluent.kafka.schemaregistry.CompatibilityChecker;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -21,6 +24,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+
+enum SchemaFormat {
+    JSONSCHEMA,
+    AVRO,
+};
 
 enum CompatibilityLevel {
     BACKWARD,
@@ -46,6 +54,13 @@ enum LogLevel {
         description = "Report evolution compatibility of latest vs existing schema versions.",
         versionProvider = VersionProvider.class)
 class ChuckD implements Callable<Integer> {
+
+    @Option(names = {"-f", "--format"},
+            defaultValue = "JSONSCHEMA",
+            description = "Valid values: ${COMPLETION-CANDIDATES}\n" +
+                    "Default: ${DEFAULT-VALUE}\n" +
+                    "Format of schema versions being checked"
+    ) SchemaFormat schemaFormat;
 
     @Option(names = {"-c", "--compatibility"},
             defaultValue = "FORWARD_TRANSITIVE",
@@ -76,6 +91,11 @@ class ChuckD implements Callable<Integer> {
     ParsedSchema newSchema;
     List<ParsedSchema> previousSchemas;
 
+    Map<SchemaFormat, Class<? extends AbstractSchemaProvider>> formatToProvider = Map.of(
+            SchemaFormat.JSONSCHEMA, JsonSchemaProvider.class,
+            SchemaFormat.AVRO, AvroSchemaProvider.class
+    );
+
     Map<CompatibilityLevel, CompatibilityChecker> levelToChecker = Map.of(
             CompatibilityLevel.BACKWARD, CompatibilityChecker.BACKWARD_CHECKER,
             CompatibilityLevel.FORWARD, CompatibilityChecker.FORWARD_CHECKER,
@@ -85,20 +105,28 @@ class ChuckD implements Callable<Integer> {
             CompatibilityLevel.FULL_TRANSITIVE, CompatibilityChecker.FULL_TRANSITIVE_CHECKER
     );
 
-    private static ParsedSchema loadSchema(File schemaFile) throws IOException
+    private static ParsedSchema loadSchema(AbstractSchemaProvider provider, File schemaFile) throws IOException
     {
         String content = Files.readString(schemaFile.toPath());
-        JsonSchemaProvider provider = new JsonSchemaProvider();
         return provider.parseSchema(content, Collections.emptyList(), false).orElseThrow();
     }
 
     private void loadSchemas() throws IOException {
         previousSchemas = new ArrayList<>();
+        AbstractSchemaProvider provider;
+        try {
+            provider = formatToProvider.get(schemaFormat).getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return;
+        }
         for (File existingSchemaFile : previousSchemaFiles) {
-            ParsedSchema schema = loadSchema(existingSchemaFile);
+            ParsedSchema schema = loadSchema(provider, existingSchemaFile);
             previousSchemas.add(schema);
         }
-        newSchema = loadSchema(newSchemaFile);
+        newSchema = loadSchema(provider, newSchemaFile);
     }
 
     private void configureRootLogger() {

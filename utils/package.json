@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "javro": "github:ExpediaGroup/javro",
+    "yargs": "^17.0.1"
+  }
+}

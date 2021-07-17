@@ -3,67 +3,21 @@ package com.anentropic.chuckd;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
-import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
-import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
-import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import picocli.CommandLine;
 
 /*
     We assume that the underlying diff code from io.confluent works correctly
     but we want to test that we have integrated correctly
  */
-public class ChuckDTest {
-    Path resourcesPath = Paths.get("src","test", "resources");
-
-    ChuckD app;
-    CommandLine cmd;
-
-    @BeforeEach
-    public void setUp() {
-        app = new ChuckD();
-        cmd = new CommandLine(app);
-    }
-
-    static class VarargsAggregator implements ArgumentsAggregator {
-        /*
-            Java sucks...
-            why is this not part of JUnit?
-            why is CsvSource the easiest way to pass multiple args?
-            https://github.com/junit-team/junit5/issues/2256
-         */
-        @Override
-        public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext context) throws ArgumentsAggregationException {
-            return accessor.toList().stream()
-                    .skip(context.getIndex())
-                    .map(String::valueOf)
-                    .toArray(String[]::new);
-        }
-    }
-
-    public List<String> getReport(String[] base_args, String[] resources) throws IOException {
-        List<String> args = new ArrayList<>();
-        Collections.addAll(args, base_args);
-        for (String resPath : resources) {
-            String arg = resourcesPath.resolve(resPath).toFile().getAbsolutePath();
-            args.add(arg);
-        }
-        cmd.parseArgs(args.toArray(new String[0]));
-
-        return app.getReport();
+public class ChuckDTestJSONSchema extends ChuckDTestBase {
+    static {
+        resourcesSubDir = "jsonschema";
+        baseArgs = new String[] {};
     }
 
     @ParameterizedTest
