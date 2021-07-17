@@ -4,9 +4,10 @@ This image runs the `chuckd` cli tool, for checking backward compatibility of ch
 
 See https://github.com/anentropic/chuckd for details.
 
-### Usage
+## Usage
 
 To use this image:
+
 - mount the dir containing your schema files as `/schemas` in the container
 - pass the filenames of two or more schema versions
 - the new schema version should be left-most, followed by previous versions of the schema to check against, in oldest->newest order.
@@ -15,13 +16,14 @@ To use this image:
 - if they are incompatible a non-zero exit code will be returned, and some info about the problem is printed like:  `Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}`
 
 e.g.
-```
+
+```sh
 docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
 ```
 
 You can configure the compatibility level via `-c` as detailed below:
 
-```
+```txt
 chuckd --help
 Usage: chuckd [-hV] [-c=<compatibilityLevel>] [-l=<logLevel>] <newSchemaFile>
               <previousSchemaFiles>...
@@ -41,6 +43,10 @@ Report evolution compatibility of latest vs existing schema versions.
                         'Full' means both forward and backward compatible.
                         'Transitive' means check for compatibility against all
                           earlier schema versions, else just the previous one.
+  -f, --format=<schemaFormat>
+                        Valid values: JSONSCHEMA, AVRO
+                        Default: JSONSCHEMA
+                        Format of schema versions being checked
   -h, --help            Show this help message and exit.
   -l, --log-level=<logLevel>
                         Valid values: OFF, ALL, DEBUG, INFO, WARN, ERROR, FATAL
