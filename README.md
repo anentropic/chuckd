@@ -4,7 +4,7 @@
 
 ![chuckd thug life](https://user-images.githubusercontent.com/147840/115955507-c4736280-a4ee-11eb-8638-8ac09e3b42f3.gif)
 
-Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. The idea is you can "bring your own" schema registry - and use this tool to validate schema evolutions. At the moment only JSON Schema is implemented, but the Confluent registry supports Avro and Protobuf too, so they'll be added here at some point.
+Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. The idea is you can "bring your own" schema registry - and use this tool to validate schema evolutions. Like CSR, chuckd supports JSON Schema, Avro and Protobuf schema formats.
 
 Developed and tested against JDK 11, native image built with GraalVM.
 
@@ -90,7 +90,7 @@ Report evolution compatibility of latest vs existing schema versions.
                         'Transitive' means check for compatibility against all
                           earlier schema versions, else just the previous one.
   -f, --format=<schemaFormat>
-                        Valid values: JSONSCHEMA, AVRO
+                        Valid values: JSONSCHEMA, AVRO, PROTOBUF
                         Default: JSONSCHEMA
                         Format of schema versions being checked
   -h, --help            Show this help message and exit.
@@ -184,5 +184,5 @@ docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.
 
 ### TODOs
 
-- add Protobuf support from Confluent schema-registry
+- maybe parse and normalise the diff strings returned by confluent lib
 - add JTD support

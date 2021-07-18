@@ -15,6 +15,7 @@ import io.confluent.kafka.schemaregistry.CompatibilityChecker;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -28,6 +29,7 @@ import picocli.CommandLine.Parameters;
 enum SchemaFormat {
     JSONSCHEMA,
     AVRO,
+    PROTOBUF,
 };
 
 enum CompatibilityLevel {
@@ -93,7 +95,8 @@ class ChuckD implements Callable<Integer> {
 
     Map<SchemaFormat, Class<? extends AbstractSchemaProvider>> formatToProvider = Map.of(
             SchemaFormat.JSONSCHEMA, JsonSchemaProvider.class,
-            SchemaFormat.AVRO, AvroSchemaProvider.class
+            SchemaFormat.AVRO, AvroSchemaProvider.class,
+            SchemaFormat.PROTOBUF, ProtobufSchemaProvider.class
     );
 
     Map<CompatibilityLevel, CompatibilityChecker> levelToChecker = Map.of(
@@ -112,16 +115,16 @@ class ChuckD implements Callable<Integer> {
     }
 
     private void loadSchemas() throws IOException {
-        previousSchemas = new ArrayList<>();
         AbstractSchemaProvider provider;
         try {
             provider = formatToProvider.get(schemaFormat).getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
+        | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
             System.exit(1);
             return;
         }
+        previousSchemas = new ArrayList<>();
         for (File existingSchemaFile : previousSchemaFiles) {
             ParsedSchema schema = loadSchema(provider, existingSchemaFile);
             previousSchemas.add(schema);

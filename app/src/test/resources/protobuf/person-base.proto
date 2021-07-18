@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.anentropic.chuckd.test;
+
+message Person {
+  string firstName = 1;
+  string lastName = 2;
+  int32 age = 3;
+  enum Gender {
+    MALE = 0;
+    FEMALE = 1;
+    NONBINARY = 2;
+  }
+  Gender gender = 4;
+}
+
+message Pet {
+  string species = 1;
+}

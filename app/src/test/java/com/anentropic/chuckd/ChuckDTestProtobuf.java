@@ -12,15 +12,15 @@ import org.junit.jupiter.params.provider.CsvSource;
     We assume that the underlying diff code from io.confluent works correctly
     but we want to test that we have integrated correctly
  */
-public class ChuckDTestAvro extends ChuckDTestBase {
+public class ChuckDTestProtobuf extends ChuckDTestBase {
     static {
-        resourcesSubDir = "avro";
-        baseArgs = new String[] {"-f", "AVRO"};
+        resourcesSubDir = "protobuf";
+        baseArgs = new String[] {"-f", "PROTOBUF"};
     }
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc",
+            "person-base.proto, person-narrowed.proto",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<String> report = getReport(
@@ -30,17 +30,15 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
         assertEquals(1, report.size());
         assertEquals(
-            "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-            "message:reader union lacking writer type: LONG, " +
-            "reader:[\"null\",\"int\"], writer:[\"null\",\"long\"]}",
+            "Found incompatible change: Difference{fullPath='#/Pet', type=MESSAGE_REMOVED}",
             report.get(0)
         );
     }
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc",
-            "person-base.avsc, person-narrowed.avsc, person-widened.avsc",
+            "person-base.proto, person-widened.proto",
+            "person-base.proto, person-narrowed.proto, person-widened.proto",
     })
     public void testForwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -56,7 +54,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc, person-base.avsc",
+            "person-base.proto, person-narrowed.proto, person-base.proto",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<String> report = getReport(
@@ -66,16 +64,14 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
         assertEquals(1, report.size());
         assertEquals(
-            "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-            "message:reader union lacking writer type: LONG, " +
-            "reader:[\"null\",\"int\"], writer:[\"null\",\"long\"]}",
+            "Found incompatible change: Difference{fullPath='#/Pet', type=MESSAGE_REMOVED}",
             report.get(0)
         );
     }
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc",
+            "person-base.proto, person-widened.proto",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<String> report = getReport(
@@ -85,17 +81,15 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
         assertEquals(1, report.size());
         assertEquals(
-            "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-            "message:reader union lacking writer type: DOUBLE, " +
-            "reader:[\"null\",\"long\"], writer:[\"null\",\"double\"]}",
+            "Found incompatible change: Difference{fullPath='#/Food', type=MESSAGE_REMOVED}",
             report.get(0)
         );
     }
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc",
-            "person-base.avsc, person-widened.avsc, person-narrowed.avsc",
+            "person-base.proto, person-narrowed.proto",
+            "person-base.proto, person-widened.proto, person-narrowed.proto",
     })
     public void testBackwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -111,7 +105,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc, person-base.avsc",
+            "person-base.proto, person-widened.proto, person-base.proto",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<String> report = getReport(
@@ -121,22 +115,18 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
         assertEquals(1, report.size());
         assertEquals(
-            "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-            "message:reader union lacking writer type: DOUBLE, " +
-            "reader:[\"null\",\"long\"], writer:[\"null\",\"double\"]}",
+            "Found incompatible change: Difference{fullPath='#/Food', type=MESSAGE_REMOVED}",
             report.get(0)
         );
     }
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, int, long, person-base.avsc, person-narrowed.avsc",  // incompatibility in -> direction
-            "DOUBLE, long, double, person-base.avsc, person-widened.avsc",  // incompatibility in <- direction
+            "Pet, person-base.proto, person-narrowed.proto",  // incompatibility in -> direction
+            "Food, person-base.proto, person-widened.proto",  // incompatibility in <- direction
     })
     public void testFullIncompatible(
-            String expectedType,
-            String readerType,
-            String writerType,
+            String expectedMessage,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
         List<String> report = getReport(
@@ -147,12 +137,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
         assertEquals(1, report.size());
         assertEquals(
                 String.format(
-                        "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-                        "message:reader union lacking writer type: %s, " +
-                        "reader:[\"null\",\"%s\"], writer:[\"null\",\"%s\"]}",
-                        expectedType,
-                        readerType,
-                        writerType
+                        "Found incompatible change: Difference{fullPath='#/%s', type=MESSAGE_REMOVED}",
+                        expectedMessage
                 ),
                 report.get(0)
         );
@@ -160,8 +146,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-base.avsc",
-            "person-base.avsc, person-narrowed.avsc, person-base.avsc",
+            "person-base.proto, person-base.proto",
+            "person-base.proto, person-narrowed.proto, person-base.proto",
     })
     public void testFullCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -176,13 +162,11 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, int, long, person-base.avsc, person-narrowed.avsc, person-base.avsc",  // incompatibility in -> direction
-            "DOUBLE, long, double, person-base.avsc, person-widened.avsc, person-base.avsc",  // incompatibility in <- direction
+            "Pet, person-base.proto, person-narrowed.proto, person-base.proto",  // incompatibility in -> direction
+            "Food, person-base.proto, person-widened.proto, person-base.proto",  // incompatibility in <- direction
     })
     public void testFullTransitiveIncompatible(
-            String expectedType,
-            String readerType,
-            String writerType,
+            String expectedMessage,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
         List<String> report = getReport(
@@ -193,12 +177,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
         assertEquals(1, report.size());
         assertEquals(
                 String.format(
-                    "Incompatibility{type:MISSING_UNION_BRANCH, location:/fields/0/type/1, " +
-                    "message:reader union lacking writer type: %s, " +
-                    "reader:[\"null\",\"%s\"], writer:[\"null\",\"%s\"]}",
-                    expectedType,
-                    readerType,
-                    writerType
+                    "Found incompatible change: Difference{fullPath='#/%s', type=MESSAGE_REMOVED}",
+                    expectedMessage
             ),
                 report.get(0)
         );
