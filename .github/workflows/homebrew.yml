@@ -38,6 +38,7 @@ jobs:
           native-image: true
 
       - name: Build a bottle using Homebrew
+        id: build-bottle
         env:
           # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
           # in the restricted env during brew install
@@ -49,6 +50,10 @@ jobs:
           brew install --build-bottle --verbose anentropic/tap/chuckd
           sudo /usr/sbin/purge
           brew bottle anentropic/tap/chuckd
+          ls -la
+          echo "::set-output name=bottlepath::$(find -f chuckd--${{ github.event.release.tag_name }}.catalina.bottle*)"
+      
+      - run: echo ${{ steps.build-bottle.outputs.bottlepath }}
 
       - name: Upload the bottle to the GitHub release
         uses: actions/upload-release-asset@v1.0.1
@@ -56,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./chuckd--${{ github.event.release.tag_name }}.catalina.bottle.tar.gz
+          asset_path: ./${{ steps.build-bottle.outputs.bottlepath }}
           asset_name: chuckd-${{ github.event.release.tag_name }}.catalina.bottle.tar.gz
           asset_content_type: application/gzip
 
