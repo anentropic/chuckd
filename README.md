@@ -4,11 +4,39 @@
 
 ![chuckd thug life](https://user-images.githubusercontent.com/147840/115955507-c4736280-a4ee-11eb-8638-8ac09e3b42f3.gif)
 
-Borrowed from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. The idea is you can "bring your own" schema registry - and use this tool to validate schema evolutions. Like CSR, chuckd supports JSON Schema, Avro and Protobuf schema formats.
+## What is it?
 
-Developed and tested against JDK 11, native image built with GraalVM.
+Let's say you are using schemas to define your API and message contracts between producer/consumer or client/backend. This unlocks various benefits around automated testing etc. When you roll out changes to a schema you need to ensure that deployed clients can understand both old and new schemas.
+
+So you may want to take a "semantic versioning" approach where major incompatible changes require updates to client code, but minor backward-compatible changes are allowed. For the latter kind it's useful to have a tool to validate the compatibility properties of your evolving schema - **this is `chuckd`**.
+
+The validation code is borrowed directly from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. The idea is you can "bring your own" registry (e.g. just a git repo) - and use this tool to validate schema evolutions via your CI/CD pipeline. Like CSR, `chuckd` supports JSON Schema, Avro and Protobuf schema formats.
+
+Developed and tested against JDK 11, native image built with GraalVM. See [install](#install) for details.
+
+### Example
+
+In your message producer repo (e.g. api backend) you have your versioned schema files like:
+
+```txt
+schemas
+  person
+    current.json
+    1.3.1.json
+    1.3.0.json
+    1.2.7.json
+```
+
+You can then use `chuckd` in your CI/CD to validate that `current.json` is backwards compatible with any previous versions of the schema still in use by clients/consumers.
+
+(`chuckd` itself doesn't have any notion of semver filenames, it's up to you to configure your CI/CD to pass in the relevant files as args. See [usage](#usage) below.)
+
+### Contents
 
 - [chuckd](#chuckd)
+  - [What is it?](#what-is-it)
+    - [Example](#example)
+    - [Contents](#contents)
   - [Install](#install)
     - [Linux](#linux)
     - [Docker](#docker)
