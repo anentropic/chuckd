@@ -29,4 +29,7 @@ jobs:
         env:
           # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push (see above)
           # NOTE: this will have to be regenerated periodically via GH developer settings
+          # it is used for several things and needs at minimum:
+          # - Contents: read & write 
+          # repos: anentropic/chuckd, anentropic/homebrew-tap
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

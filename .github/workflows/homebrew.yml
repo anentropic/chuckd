@@ -22,11 +22,22 @@ jobs:
 
   build-and-upload-bottle:
     name: Build and upload Homebrew bottle for macOS Catalina
-    # TODO: matrix when Big Sur runners are generally available
-    runs-on: macos-10.15
+    strategy:
+      matrix:
+        os: [macos-10.15, macos-11, macos-12]
+        include:
+          - os: macos-10.15
+            version-name: Catalina
+          - os: macos-11
+            version-name: Big Sur
+          - os: macos-12
+            version-name: Monterrey
+          - os: macos-13
+            version-name: Ventura
+    runs-on: ${{ matrix.os }}
     needs: update-tap-formula
     outputs:
-      macos-version: Catalina
+      macos-version: ${{ matrix.version-name }}
     steps:
       # yes, it's a bit redundant to the build-native-image job
       # but a homebrew bottle install should be more convenient
@@ -67,8 +78,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-upload-bottle
     steps:
-      # TODO: see https://github.com/SwiftDocOrg/swift-doc/blob/master/.github/workflows/publish.yml#L61
-      # for multi version workflow once Bug Sur runners are generally available
       - uses: anentropic/update-homebrew-formula-action@fixes-for-linter
         with:
           repository: anentropic/chuckd

@@ -110,10 +110,10 @@ jobs:
           && echo ::set-output name=git-commit::$(/usr/bin/git log -1 --format='%H') \
           && echo ::set-output name=short-description::'Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'
 
-      - uses: docker/setup-qemu-action@v1
-      - uses: docker/setup-buildx-action@v1
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v2
         with:
           username: anentropic
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
