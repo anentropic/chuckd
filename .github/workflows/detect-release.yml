@@ -22,10 +22,11 @@ jobs:
         run: echo "::set-output name=version::$(grep semver= app/src/main/resources/version.properties | sed 's/.*semver=\(.*\)/\1/')"
 
       - name: Push version git tag
-        uses: julb/action-manage-tag@v1
+        uses: julbme/gh-action-manage-tag@v1
         with:
           name: ${{ steps.version.outputs.version }}
           state: present
         env:
-          # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push
+          # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push (see above)
+          # NOTE: this will have to be regenerated periodically via GH developer settings
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
