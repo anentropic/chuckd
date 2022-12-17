@@ -25,7 +25,7 @@ jobs:
       - run: 'echo "tag: ${{ steps.get-tag.outputs.tag }}"'
         if: 'steps.get-tag.outputs.tag'
       - run: 'echo "manual version: ${{ github.event.inputs.version }}"'
-        if: '!steps.tag-name.outputs.tag'
+        if: '!steps.get-tag.outputs.tag'
 
       - id: tag-name
         run: echo "::set-output name=version::${{ steps.get-tag.outputs.tag || github.event.inputs.version }}"
