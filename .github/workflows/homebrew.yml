@@ -28,8 +28,30 @@ jobs:
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  release-info:
+    name: Provide release info as outputs, abstracting away trigger source of this workflow
+    runs-on: ubuntu-latest
+    outputs:
+      upload-url: ${{ steps.release-info.outputs.upload_url }}
+      tag-name: ${{ steps.release-info.outputs.tag_name }}
+    steps:
+      - id: get-release-info
+        if: github.event.inputs.version
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag: ${{ github.event.inputs.version }}
+      - id: release-info
+        run: |
+          echo "upload_url=${{ github.event.release.upload_url || steps.get-release-info.outputs.upload_url }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ github.event.release.tag_name || github.event.inputs.version }}" >> $GITHUB_OUTPUT
+
   build-and-upload-bottle:
     name: Build and upload Homebrew bottle for macOS
+    needs:
+      - update-tap-formula
+      - release-info
     strategy:
       fail-fast: false
       matrix:
@@ -39,74 +61,18 @@ jobs:
             version-file-name: catalina
           - os: macos-11
             version-name: Big Sur
-            version-file-name: bigsur
+            version-file-name: big_sur
           - os: macos-12
             version-name: Monterey
             version-file-name: monterey
           # - os: macos-13
           #   version-name: Ventura
           #   version-file-name: ventura
-    runs-on: ${{ matrix.os }}
-    needs: update-tap-formula
-    outputs:
-      macos-version: ${{ matrix.version-name }}
-
-    steps:
-      # if manually triggered via workflow_dispatch we need to fetch release info
-      - id: get-release-info
-        if: github.event.inputs.version
-        uses: cardinalby/git-get-release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          tag: ${{ github.event.inputs.version }}
-      # other steps can get their values from this step to abstract away how workflow was triggered
-      - id: release-info
-        run: |
-          echo "upload_url=${{ github.event.release.upload_url || steps.get-release-info.outputs.upload_url }}" >> $GITHUB_OUTPUT
-          echo "tag_name=${{ github.event.release.tag_name || github.event.inputs.version }}" >> $GITHUB_OUTPUT
-
-      # yes, it's a bit redundant to the build-native-image job
-      # but a homebrew bottle install should be more convenient
-      # if it bypasses the Gatekeeper warnings you get otherwise
-      - uses: ayltai/setup-graalvm@v1
-        with:
-          java-version: 11
-          graalvm-version: '21.1.0'
-          native-image: true
-
-      - name: Build a bottle using Homebrew
-        id: build-bottle
-        env:
-          # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
-          # in the restricted env during brew install
-          HOMEBREW_GRAALVM_HOME: ${{ env.GRAALVM_HOME }}
-        # https://github.com/actions/virtual-environments/issues/2619
-        # `sudo /usr/sbin/purge` to prevent "exec format error" after extracting
-        run: |
-          sudo /usr/sbin/purge
-          brew install --build-bottle --verbose anentropic/tap/chuckd
-          sudo /usr/sbin/purge
-          brew bottle anentropic/tap/chuckd
-          echo "bottlepath=$(find -f chuckd--${{ steps.release-info.outputs.tag_name }}.${{ matrix.version-file-name }}.bottle*)" >> $GITHUB_OUTPUT
-
-      - name: Upload the bottle to the GitHub release
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        with:
-          upload_url: ${{ steps.release-info.outputs.upload_url }}
-          asset_path: ./${{ steps.build-bottle.outputs.bottlepath }}
-          asset_name: chuckd-${{ steps.release-info.outputs.tag_name }}.${{ matrix.version-name }}.bottle.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Update the Homebrew formula with bottle file
-        uses: anentropic/update-homebrew-formula-action@fixes-for-linter
-        with:
-          repository: anentropic/chuckd
-          tap: anentropic/homebrew-tap
-          formula: chuckd.rb
-          message: |
-            Add macOS ${{ steps.build-and-upload-bottle.outputs.macos-version }} bottle to chuckd ${{ steps.release-info.outputs.tag_name }}
-        env:
-          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    uses: ./.github/workflows/homebrew-build-and-upload-bottle.yml
+    with:
+      runs-on: ${{ matrix.os }}
+      macos-version-display: ${{ matrix.version-name }}
+      macos-version: ${{ matrix.version-file-name }}
+      tag-name: ${{ needs.release-info.outputs.tag-name }}
+      upload-url: ${{ needs.release-info.outputs.upload-url }}
+    secrets: inherit

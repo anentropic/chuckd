@@ -1,0 +1,81 @@
+name: Homebrew update formula with bottle file
+
+# this is a reusable workflow, called from build-and-upload-bottle job in homebrew.yml
+# ...so that we can trigger it from each of the matrix invocations
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        required: true
+      macos-version-display:
+        type: string
+        required: true
+      macos-version:
+        type: string
+        required: true
+      tag-name:
+        description: chuckd release version
+        type: string
+        required: true
+      upload-url:
+        description: github release upload url
+        type: string
+        required: true
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  build-and-upload-bottle:
+    name: Build and upload Homebrew bottle for macOS
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      # yes, it's a bit redundant to the build-native-image job
+      # but a homebrew bottle install should be more convenient
+      # if it bypasses the Gatekeeper warnings you get otherwise
+      - uses: ayltai/setup-graalvm@v1
+        with:
+          java-version: 11
+          graalvm-version: '21.1.0'
+          native-image: true
+
+      - name: Build a bottle using Homebrew
+        id: build-bottle
+        env:
+          # needed by anentropic/tap/chuckd so it can set PATH and JAVA_HOME
+          # in the restricted env during brew install
+          HOMEBREW_GRAALVM_HOME: ${{ env.GRAALVM_HOME }}
+        # https://github.com/actions/virtual-environments/issues/2619
+        # `sudo /usr/sbin/purge` to prevent "exec format error" after extracting
+        run: |
+          sudo /usr/sbin/purge
+          brew install --build-bottle --verbose anentropic/tap/chuckd
+          sudo /usr/sbin/purge
+          brew bottle anentropic/tap/chuckd
+          echo "bottlepath=$(find -f chuckd--${{ inputs.tag-name }}.${{ inputs.macos-version }}.bottle*)" >> $GITHUB_OUTPUT
+
+      - name: Upload the bottle to the GitHub release
+        # I seem to get GitHub 'unicorn' error page (or "socket hang up") here quite often
+        # TODO: some in-step retry mechanism?
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ inputs.upload-url }}
+          asset_path: ./${{ steps.build-bottle.outputs.bottlepath }}
+          asset_name: chuckd-${{ inputs.tag-name }}.${{ inputs.macos-version-display }}.bottle.tar.gz
+          asset_content_type: application/gzip
+
+  update-tap-formula-with-bottle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anentropic/update-homebrew-formula-action@fixes-for-linter
+        with:
+          repository: anentropic/chuckd
+          tap: anentropic/homebrew-tap
+          formula: chuckd.rb
+          message: |
+            Add macOS ${{ inputs.macos-version-display }} bottle to chuckd ${{ inputs.tag-name }}
+        env:
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
