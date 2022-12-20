@@ -58,7 +58,7 @@ jobs:
       - name: Upload the bottle to the GitHub release
         # I seem to get GitHub 'unicorn' error page (or "socket hang up") here quite often
         # TODO: some in-step retry mechanism?
-        uses: actions/upload-release-asset@v1.0.1
+        uses: anentropic/gh-action-upload-release-asset@retry-uploads
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
