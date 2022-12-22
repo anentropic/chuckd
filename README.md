@@ -70,13 +70,21 @@ This will be the easiest option in many cases, particularly for macOS users.
 
 We do have pre-built binaries for x86\_64 macOS, **but** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
 
-It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 macbook), but you might need to prepend `arch -x86_64` the first time you run it.
+It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 MacBook Air), but you might need to prepend `arch -x86_64` the first time you run it.
 
-We also have a Homebrew tap... This _should_ have been the easiest option.
+We also have a Homebrew tap... This _should_ have been the easiest option. Unfortunately GitHub are slow to release 'runners' for new versions of macOS, so we are only able to build bottles for macOS versions available on GitHub.
 
-For **Catalina** users we are able to build a `bottle` (pre-built binary) so you should be able to just `brew install anentropic/tap/chuckd` as intended. As soon as GitHub Actions provides us with Big Sur runners we will start building bottles for Big Sur too.
+Currently this means we have bottles for:
 
-Unfortunately if there is no bottle available (all versions of macOS other than Catalina currently) then we have to build from source, and this means the GraalVM native-image builder toolchain has to be set up manually first:
+ - Catalina (10.15)
+ - Big Sur (11.x)
+ - Monterey (12.x)
+
+For these macOS versions you should be able to just `brew install anentropic/tap/chuckd` as intended.
+
+GitHub only have x86_64 runners currently so we only have Intel bottles. Not sure if Homebrew will install them if you're on arm64.
+
+Unfortunately if there is no bottle available then we have to build from source, and this means the GraalVM native-image builder toolchain has to be set up manually first:
 
 1. `brew install --cask graalvm/tap/graalvm-ce-java11`
 2. follow the post-install instructions to configure your `JAVA_HOME` env and add the GraalVM bin dir to your `PATH` (see https://github.com/graalvm/homebrew-tap for more details)
@@ -146,6 +154,10 @@ export GRAALHOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Cont
 $GRAALHOME/bin/gu install native-image
 ```
 
+NOTE: this project was originally built using GraalVM 21.1.0 ...homebrew will install a later version though, and the gradle nativeImage plugin is [currently incompatible](https://github.com/mike-neck/graalvm-native-image-plugin/issues/177) with >= 21.3.0
+
+TBH I will probably ditch the native image builds, the small difference in startup time is not worth the hassle (and inability) of providing pre-compiled binaries for all target platforms.
+
 ### Build and test project
 
 ```sh
@@ -154,7 +166,7 @@ gradle build
 
 ...this compiles the project and runs the tests.
 
-It also generates `app/build/scripts/app` shell script which wraps `java` + jar and should be runnable as if it was the `chuckd` cli tool, if your local `$JAVA_HOME` etc are set up correctly. (I didn't get it working, but I didn't try very hard...)
+It also generates `app/build/distributions/chuckd-x.y.z.zip`. If you unzip that then the `bin/chuckd` shell script it extracts is runnable - I guess it needs the adjacent `lib/` dir which was also extracted.
 
 ### Build the binary
 
