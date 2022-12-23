@@ -2,8 +2,8 @@
 
 #  basic "smoke tests" that the native image doesn't blow up at run-time
 
-bin_path="app/build/bin"
-res_path="app/src/test/resources"
+bin_path="${CHUCKD_BIN_PATH:-app/build/bin}"
+res_path="${CHUCKD_RES_PATH:-app/src/test/resources}"
 
 @test "--help" {
   run ${bin_path}/chuckd --help
