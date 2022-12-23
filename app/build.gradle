@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'org.mikeneck.graalvm-native-image' version 'v1.4.1'
     id "net.thauvin.erik.gradle.semver" version "1.0.4"
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 repositories {
@@ -43,6 +44,9 @@ application {
 
 jar {
     archiveBaseName = "chuckd"  // jar name
+}
+shadowJar {
+   archiveBaseName = "chuckd"  // "fat" jar name (single-file redistributable)
 }
 
 /*
