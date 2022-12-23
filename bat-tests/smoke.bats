@@ -5,6 +5,9 @@
 bin_path="${CHUCKD_BIN_PATH:-app/build/bin}"
 res_path="${CHUCKD_RES_PATH:-app/src/test/resources}"
 
+# brew test sets this, seems unnecessary and causes extra cruft in output
+unset _JAVA_OPTIONS
+
 @test "--help" {
   run ${bin_path}/chuckd --help
   [ "$status" -eq 0 ]
