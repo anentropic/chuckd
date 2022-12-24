@@ -14,12 +14,12 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # fix for https://github.community/t/push-from-action-does-not-trigger-subsequent-action/16854/2
           persist-credentials: false
       - id: version
-        run: echo "::set-output name=version::$(grep semver= app/src/main/resources/version.properties | sed 's/.*semver=\(.*\)/\1/')"
+        run: echo "version=$(grep semver= app/src/main/resources/version.properties | sed 's/.*semver=\(.*\)/\1/') >> $GITHUB_OUTPUT"
 
       - name: Push version git tag
         uses: julbme/gh-action-manage-tag@v1

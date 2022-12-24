@@ -28,7 +28,7 @@ jobs:
         if: '!steps.get-tag.outputs.tag'
 
       - id: tag-name
-        run: echo "::set-output name=version::${{ steps.get-tag.outputs.tag || github.event.inputs.version }}"
+        run: echo "version=${{ steps.get-tag.outputs.tag || github.event.inputs.version }}" >> $GITHUB_OUTPUT
 
       # we'll upload files to it from each of the `build-native-image` matrix jobs
       # then publish ("un-draft") it at the end
@@ -67,7 +67,7 @@ jobs:
 
       - name: Set artifact name
         id: name-artifact
-        run: echo "::set-output name=name::chuckd-${{ matrix.platform-name }}-${{ needs.draft-github-release.outputs.version }}.tar.gz"
+        run: echo "name=chuckd-${{ matrix.platform-name }}-${{ needs.draft-github-release.outputs.version }}.tar.gz" >> $GITHUB_OUTPUT
 
       # https://github.com/actions/virtual-environments/issues/2619
       # without this the file is corrupted and gives "exec format error" after extracting
@@ -106,9 +106,9 @@ jobs:
       - name: Prepare image metadata
         id: metadata
         run: |
-          echo ::set-output name=timestamp::$(date -u +%Y-%m-%dT%H:%M:%S%z) \
-          && echo ::set-output name=git-commit::$(/usr/bin/git log -1 --format='%H') \
-          && echo ::set-output name=short-description::'Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'
+          echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%S%z)" >> $GITHUB_OUTPUT \
+          && echo "git-commit=$(/usr/bin/git log -1 --format='%H')" >> $GITHUB_OUTPUT \
+          && echo "short-description='Schema evolution validation tool. Check backward compatibility of your JSON Schema changes.'" >> $GITHUB_OUTPUT
 
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
