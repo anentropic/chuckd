@@ -70,12 +70,6 @@ These are also based on GraalVM native-image binaries.
 
 ### macOS
 
-#### x86\_64 binaries
-
-We do have pre-built binaries for x86\_64 macOS (found at https://github.com/anentropic/chuckd/releases), **but** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
-
-It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 MacBook Air), but you might need to prepend `arch -x86_64` the first time you run it.
-
 #### Homebrew
 
 This should be the easiest option for most macOS users. Since version 0.5.3 the formula is based on running the Java jar file, rather than GraalVM native-image (since we were unable to provide native images for Apple Silicon for various reasons). But in practice this works great and startup time is minimal.
@@ -85,6 +79,15 @@ To install via Homebrew:
 ```sh
 brew install anentropic/tap/chuckd
 ```
+
+#### x86\_64 binaries
+
+We do have pre-built (via GraalVM native-image) binaries for Intel macs, found at:  
+https://github.com/anentropic/chuckd/releases
+
+**But** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
+
+It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 MacBook Air), but you might need to prepend `arch -x86_64` the first time you run it (i.e. under Rosetta 2).
 
 ## Usage
 
