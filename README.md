@@ -54,7 +54,7 @@ You can then use `chuckd` in your CI/CD to validate that `current.json` is backw
 
 ### Linux
 
-We have pre-built binaries available for x86-64 Linux, found at:  
+We have pre-built (via GraalVM native-image) binaries available for x86-64 Linux, found at:  
 https://github.com/anentropic/chuckd/releases
 
 Just download, extract `chuckd` from the tar.gz, and move it to somewhere on your `$PATH`, e.g. `/usr/local/bin`.
@@ -64,33 +64,27 @@ Just download, extract `chuckd` from the tar.gz, and move it to somewhere on you
 We have a multi-arch (amd64 / arm64) Docker image `anentropic/chuckd` available on Docker Hub:  
 https://hub.docker.com/r/anentropic/chuckd/tags
 
-This will be the easiest option in many cases, particularly for macOS users.
+This will be a convenient option in many cases, particularly in CI/CD systems.
+
+These are also based on GraalVM native-image binaries.
 
 ### macOS
 
-We do have pre-built binaries for x86\_64 macOS, **but** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
+#### x86\_64 binaries
+
+We do have pre-built binaries for x86\_64 macOS (found at https://github.com/anentropic/chuckd/releases), **but** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
 
 It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 MacBook Air), but you might need to prepend `arch -x86_64` the first time you run it.
 
-We also have a Homebrew tap... This _should_ have been the easiest option. Unfortunately GitHub are slow to release 'runners' for new versions of macOS, so we are only able to build bottles for macOS versions available on GitHub.
+#### Homebrew
 
-Currently this means we have bottles for:
+This should be the easiest option for most macOS users. Since version 0.5.3 the formula is based on running the Java jar file, rather than GraalVM native-image (since we were unable to provide native images for Apple Silicon for various reasons). But in practice this works great and startup time is minimal.
 
- - Catalina (10.15)
- - Big Sur (11.x)
- - Monterey (12.x)
+To install via Homebrew:
 
-For these macOS versions you should be able to just `brew install anentropic/tap/chuckd` as intended.
-
-GitHub only have x86_64 runners currently so we only have Intel bottles. Not sure if Homebrew will install them if you're on arm64.
-
-Unfortunately if there is no bottle available then we have to build from source, and this means the GraalVM native-image builder toolchain has to be set up manually first:
-
-1. `brew install --cask graalvm/tap/graalvm-ce-java11`
-2. follow the post-install instructions to configure your `JAVA_HOME` env and add the GraalVM bin dir to your `PATH` (see https://github.com/graalvm/homebrew-tap for more details)
-3. `gu install native-image`
-
-After all that, you should be able to `brew install anentropic/tap/chuckd`.
+```sh
+brew install anentropic/tap/chuckd
+```
 
 ## Usage
 

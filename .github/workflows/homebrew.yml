@@ -6,19 +6,18 @@ on:
     types:
       - published
   workflow_dispatch:
-    inputs:
-      version:
-        description: Enter latest release version (tag) to re-trigger for
-        required: true
-    # anentropic/update-homebrew-formula-action will pick up the last release from git tags
-    # but rest of this workflow needs this input - they have to match
-    # TODO: update the formula action to take an input
+    # inputs:
+    #   version:
+    #     description: Enter latest release version (tag) to re-trigger for
+    #     required: true
 
 jobs:
   update-tap-formula:
     name: Update formula version in Homebrew tap
     runs-on: ubuntu-latest
     steps:
+      # anentropic/update-homebrew-formula-action will pick up the last release from git tags
+      # TODO: update the formula action to take an input
       - name: Update the Homebrew formula with latest release
         uses: anentropic/update-homebrew-formula-action@fixes-for-linter
         with:
@@ -27,52 +26,3 @@ jobs:
           formula: chuckd.rb
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  release-info:
-    name: Provide release info as outputs, abstracting away trigger source of this workflow
-    runs-on: ubuntu-latest
-    outputs:
-      upload-url: ${{ steps.release-info.outputs.upload_url }}
-      tag-name: ${{ steps.release-info.outputs.tag_name }}
-    steps:
-      - id: get-release-info
-        if: github.event.inputs.version
-        uses: cardinalby/git-get-release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          tag: ${{ github.event.inputs.version }}
-      - id: release-info
-        run: |
-          echo "upload_url=${{ github.event.release.upload_url || steps.get-release-info.outputs.upload_url }}" >> $GITHUB_OUTPUT
-          echo "tag_name=${{ github.event.release.tag_name || github.event.inputs.version }}" >> $GITHUB_OUTPUT
-
-  build-and-upload-bottle:
-    name: Build and upload Homebrew bottle for macOS
-    needs:
-      - update-tap-formula
-      - release-info
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-10.15
-            version-name: Catalina
-            version-file-name: catalina
-          - os: macos-11
-            version-name: Big Sur
-            version-file-name: big_sur
-          - os: macos-12
-            version-name: Monterey
-            version-file-name: monterey
-          # - os: macos-13
-          #   version-name: Ventura
-          #   version-file-name: ventura
-    uses: ./.github/workflows/homebrew-build-and-upload-bottle.yml
-    with:
-      runs-on: ${{ matrix.os }}
-      macos-version-display: ${{ matrix.version-name }}
-      macos-version: ${{ matrix.version-file-name }}
-      tag-name: ${{ needs.release-info.outputs.tag-name }}
-      upload-url: ${{ needs.release-info.outputs.upload-url }}
-    secrets: inherit
