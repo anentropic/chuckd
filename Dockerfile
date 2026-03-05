@@ -22,20 +22,18 @@ VOLUME /home/gradle/.gradle
 
 WORKDIR /home/gradle
 
-RUN microdnf update
 RUN microdnf install \
         fontconfig \
+        findutils \
         unzip \
         wget \
         \
         git \
         git-lfs \
-        mercurial \
         openssh-clients \
-        subversion \
     && microdnf clean all
 
-ENV GRADLE_VERSION 8.14.4
+ENV GRADLE_VERSION=8.14.4
 ARG GRADLE_DOWNLOAD_SHA256=f1771298a70f6db5a29daf62378c4e18a17fc33c9ba6b14362e0cdf40610380d
 RUN set -o errexit -o nounset \
     && echo "Downloading Gradle" \
