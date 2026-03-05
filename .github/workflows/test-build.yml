@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-test-java:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -25,11 +28,14 @@ jobs:
         if: always()
         with:
           check_name: Gradle unit test results
-          comment_on_pr: false
+          comment_mode: off
           files: app/build/test-results/**/*.xml
 
   build-and-test-native-image:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     steps:
       - uses: graalvm/setup-graalvm@v1
         with:
@@ -55,7 +61,7 @@ jobs:
         if: always()
         with:
           check_name: Native-image smoke-test results
-          comment_on_pr: false
+          comment_mode: off
           # note: this has to be relative to work dir, absolute path not supported
           # (limitation of EnricoMi/publish-unit-test-result-action not GHA)
           files: bats-report/**/*.xml
