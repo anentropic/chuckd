@@ -1,8 +1,8 @@
 plugins {
     id 'application'
-    id 'org.mikeneck.graalvm-native-image' version 'v1.4.1'
+    id 'org.graalvm.buildtools.native' version '0.10.6'
     id "net.thauvin.erik.gradle.semver" version "1.0.4"
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.gradleup.shadow' version '9.0.0'
 }
 
 repositories {
@@ -12,21 +12,21 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.1"
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.12.2"
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.12.2'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 
 //    implementation 'org.apache.logging.log4j:log4j-core:2.7'
-    implementation 'io.confluent:kafka-schema-registry-parent:6.1.1'
-    implementation 'io.confluent:kafka-schema-registry:6.1.1'
-    implementation 'io.confluent:kafka-schema-registry-client:6.1.1'
-    implementation 'io.confluent:kafka-serde-tools-package:6.1.1'
-    implementation 'io.confluent:kafka-schema-serializer:6.1.1'
-    implementation 'io.confluent:kafka-json-schema-serializer:6.1.1'
-    implementation 'io.confluent:kafka-json-schema-provider:6.1.1'
-    implementation 'info.picocli:picocli:4.6.1'
-    annotationProcessor 'info.picocli:picocli-codegen:4.6.1'
+    implementation 'io.confluent:kafka-schema-registry-parent:7.8.0'
+    implementation 'io.confluent:kafka-schema-registry:7.8.0'
+    implementation 'io.confluent:kafka-schema-registry-client:7.8.0'
+    implementation 'io.confluent:kafka-serde-tools-package:7.8.0'
+    implementation 'io.confluent:kafka-schema-serializer:7.8.0'
+    implementation 'io.confluent:kafka-json-schema-serializer:7.8.0'
+    implementation 'io.confluent:kafka-json-schema-provider:7.8.0'
+    implementation 'info.picocli:picocli:4.7.7'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.7'
 }
 
 test {
@@ -47,6 +47,7 @@ jar {
 }
 shadowJar {
    archiveBaseName = "chuckd"  // "fat" jar name (single-file redistributable)
+   zip64 = true
 }
 
 /*
@@ -61,41 +62,29 @@ semver {
 }
 
 /*
- * these parts all prescribed by:
- * https://github.com/mike-neck/graalvm-native-image-plugin
+ * GraalVM native-image configuration
+ * https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
  */
-nativeImage {
-    graalVmHome = System.getProperty('java.home')
-    mainClass = 'com.anentropic.chuckd.ChuckD'
-    executableName = 'chuckd'
-    outputDirectory = file("$buildDir/bin")
-    arguments {
-        add '-H:ReflectionConfigurationFiles=src/main/resources/reflection.json'
-        add '--no-fallback'
-        add '--enable-all-security-services'
-        add '--enable-url-protocols=https'  // to resolve JSON Schema $ref
-        if (project.hasProperty("static") && project.getProperty("static")) {
-            // Error: DARWIN does not support building static executable images.
-            add '--static'
+graalvmNative {
+    binaries {
+        main {
+            mainClass = 'com.anentropic.chuckd.ChuckD'
+            imageName = 'chuckd'
+            buildArgs.addAll(
+                "-H:ReflectionConfigurationFiles=${projectDir}/src/main/resources/reflection.json",
+                '--no-fallback',
+                '--enable-url-protocols=https',  // to resolve JSON Schema $ref
+                '--initialize-at-build-time=org.apache.log4j',
+                '--initialize-at-build-time=java.beans',
+                '--initialize-at-build-time=com.sun.beans',
+                '-H:IncludeResources=version.properties',
+                '-H:IncludeResources=metaschemas/.*',
+                '-H:IncludeResources=json-meta-schemas/.*',
+            )
+            if (project.hasProperty("static") && project.getProperty("static")) {
+                // Error: DARWIN does not support building static executable images.
+                buildArgs.add('--static')
+            }
         }
-//        add '--report-unsupported-elements-at-runtime'
-        // Suppress compile-time error: io.netty.util.internal.logging.Log4J2Logger
-        // (I guess not used at runtime currently)
-        add '--allow-incomplete-classpath'
-    }
-}
-generateNativeImageConfig {
-    enabled = true
-    byRunningApplication {
-        stdIn("""
-    |total: 2
-    |contents:
-    |  - name: foo
-    |    size: 2052
-    |""".stripMargin())
-    }
-    byRunningApplicationWithoutArguments()
-    byRunningApplication {
-        arguments('-h')
     }
 }

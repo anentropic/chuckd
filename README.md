@@ -12,7 +12,7 @@ So you may want to take a "semantic versioning" approach where major incompatibl
 
 The validation code is borrowed directly from [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) and re-wrapped as a cli util. The idea is you can "bring your own" registry (e.g. just a git repo) - and use this tool to validate schema evolutions via your CI/CD pipeline. Like CSR, `chuckd` supports JSON Schema, Avro and Protobuf schema formats.
 
-Developed and tested against JDK 11, native image built with GraalVM. See [install](#install) for details.
+Developed and tested against JDK 21, native image built with GraalVM. See [install](#install) for details.
 
 ### Example
 
@@ -54,8 +54,12 @@ You can then use `chuckd` in your CI/CD to validate that `current.json` is backw
 
 ### Linux
 
-We have pre-built (via GraalVM native-image) binaries available for x86-64 Linux, found at:  
+We have pre-built (via GraalVM native-image) binaries available at:  
 https://github.com/anentropic/chuckd/releases
+
+Releases include builds for:
+- **x86_64** — `chuckd-Linux-x86_64-<version>.tar.gz`
+- **aarch64 (ARM64)** — `chuckd-Linux-aarch64-<version>.tar.gz` _(since v0.6.0+)_
 
 Just download, extract `chuckd` from the tar.gz, and move it to somewhere on your `$PATH`, e.g. `/usr/local/bin`.
 
@@ -72,22 +76,24 @@ These are also based on GraalVM native-image binaries.
 
 #### Homebrew
 
-This should be the easiest option for most macOS users. Since version 0.5.3 the formula is based on running the Java jar file, rather than GraalVM native-image (since we were unable to provide native images for Apple Silicon for various reasons). But in practice this works great and startup time is minimal.
-
-To install via Homebrew:
+The easiest option for most macOS users:
 
 ```sh
 brew install anentropic/tap/chuckd
 ```
 
-#### x86\_64 binaries
+#### Native binaries
 
-We do have pre-built (via GraalVM native-image) binaries for Intel macs, found at:  
+We have pre-built (via GraalVM native-image) binaries available at:  
 https://github.com/anentropic/chuckd/releases
 
-**But** by default they will be blocked from running by Gatekeeper. If you want to go this route, see [instructions here](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to make it usable.
+Releases include builds for:
+- **Apple Silicon (aarch64)** — `chuckd-macOS-aarch64-<version>.tar.gz` _(since v0.6.0+)_
+- **Intel (x86_64)** — `chuckd-macOS-x86_64-<version>.tar.gz` _(prior to v0.6.0, discontinued)_
 
-It seems like the Intel binary will run fine on Apple Silicon (arm64) macs after unblocking (I have tried it on my M1 MacBook Air), but you might need to prepend `arch -x86_64` the first time you run it (i.e. under Rosetta 2).
+Just download, extract `chuckd` from the tar.gz, and move it to somewhere on your `$PATH`, e.g. `/usr/local/bin`.
+
+**Note:** macOS may block downloaded binaries by default (Gatekeeper). If you see a security warning, see [these instructions](https://eshop.macsales.com/blog/57866-how-to-work-with-and-around-gatekeeper/) (scroll down to _"Opening Gatekeeper Blocked Apps"_) for how to allow it.
 
 ## Usage
 
@@ -143,17 +149,14 @@ docker run -v /path/to/my/schemas:/schemas anentropic/chuckd person-1.1.0.json p
 
 ### Install pre-requisites
 
+Install [GraalVM 21](https://www.graalvm.org/downloads/) (community edition is fine). The easiest way on macOS:
+
 ```sh
-brew install gradle
-brew install --cask graalvm/tap/graalvm-ce-java11
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Contents/Home
-export GRAALHOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Contents/Home
-$GRAALHOME/bin/gu install native-image
+brew install --cask graalvm/tap/graalvm-community-jdk21
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-community-openjdk-21/Contents/Home
 ```
 
-NOTE: this project was originally built using GraalVM 21.1.0 ...homebrew will install a later version though, and the gradle nativeImage plugin is [currently incompatible](https://github.com/mike-neck/graalvm-native-image-plugin/issues/177) with >= 21.3.0
-
-TBH I will probably ditch the native image builds, the small difference in startup time is not worth the hassle (and inability) of providing pre-compiled binaries for all target platforms.
+`native-image` is bundled with GraalVM — no separate installation step needed.
 
 ### Build and test project
 
@@ -167,20 +170,20 @@ It also generates `app/build/distributions/chuckd-x.y.z.zip`. If you unzip that 
 
 ### Build the binary
 
-Much slower to compile, but more appealing, we can use GraalVM to build a native image (which will be output in `app/build/bin/chuckd`)
+Much slower to compile, but more appealing, we can use GraalVM to build a native image (which will be output in `app/build/native/nativeCompile/chuckd`)
 
 ```sh
-gradle nativeImage
+gradle nativeCompile
 ```
 
 Try it out:
 
 ```sh
-[chuckd]$ app/build/bin/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ app/build/native/nativeCompile/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
 Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}
 [chuckd]$ echo $?
 1
-[chuckd]$ app/build/bin/chuckd --compatibility BACKWARD app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ app/build/native/nativeCompile/chuckd --compatibility BACKWARD app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
 [chuckd]$ echo $?
 0
 ```

@@ -1,6 +1,4 @@
-FROM ghcr.io/graalvm/graalvm-ce:ol8-java11-21.1.0 AS base
-
-RUN gu install native-image
+FROM ghcr.io/graalvm/native-image-community:21 AS base
 
 FROM base AS gradle
 # ------------
@@ -24,15 +22,12 @@ VOLUME /home/gradle/.gradle
 
 WORKDIR /home/gradle
 
-# I guess if we ever need to install a dependency via bzr SCM from gradle
-# we have to find a source for bzr package, for now it seems non-essential
 RUN microdnf update
 RUN microdnf install \
         fontconfig \
         unzip \
         wget \
         \
-#        bzr \
         git \
         git-lfs \
         mercurial \
@@ -40,8 +35,8 @@ RUN microdnf install \
         subversion \
     && microdnf clean all
 
-ENV GRADLE_VERSION 7.0
-ARG GRADLE_DOWNLOAD_SHA256=eb8b89184261025b0430f5b2233701ff1377f96da1ef5e278af6ae8bac5cc305
+ENV GRADLE_VERSION 8.14.4
+ARG GRADLE_DOWNLOAD_SHA256=f1771298a70f6db5a29daf62378c4e18a17fc33c9ba6b14362e0cdf40610380d
 RUN set -o errexit -o nounset \
     && echo "Downloading Gradle" \
     && wget --no-verbose --output-document=gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
@@ -65,13 +60,13 @@ WORKDIR /home/chuckd
 COPY ./app ./app
 COPY ./settings.gradle ./settings.gradle
 
-RUN gradle --no-daemon -Pstatic=true nativeImage
+RUN gradle --no-daemon -Pstatic=true nativeCompile
 
 FROM scratch AS chuckd
 
 VOLUME /schemas
 WORKDIR /schemas
 
-COPY --from=chuckd-builder /home/chuckd/app/build/bin/chuckd /usr/local/bin/chuckd
+COPY --from=chuckd-builder /home/chuckd/app/build/native/nativeCompile/chuckd /usr/local/bin/chuckd
 
 ENTRYPOINT ["chuckd"]
