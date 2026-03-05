@@ -54,8 +54,12 @@ You can then use `chuckd` in your CI/CD to validate that `current.json` is backw
 
 ### Linux
 
-We have pre-built (via GraalVM native-image) binaries available for x86-64 Linux, found at:  
+We have pre-built (via GraalVM native-image) binaries available at:  
 https://github.com/anentropic/chuckd/releases
+
+Releases include builds for:
+- **x86_64** — `chuckd-Linux-x86_64-<version>.tar.gz`
+- **aarch64 (ARM64)** — `chuckd-Linux-aarch64-<version>.tar.gz` _(since v0.6.0+)_
 
 Just download, extract `chuckd` from the tar.gz, and move it to somewhere on your `$PATH`, e.g. `/usr/local/bin`.
 
@@ -84,8 +88,8 @@ We have pre-built (via GraalVM native-image) binaries available at:
 https://github.com/anentropic/chuckd/releases
 
 Releases include builds for:
-- **Apple Silicon (aarch64)** — `chuckd-macOS-aarch64-<version>.tar.gz`
-- **Intel (x86_64)** — `chuckd-macOS-x86_64-<version>.tar.gz`
+- **Apple Silicon (aarch64)** — `chuckd-macOS-aarch64-<version>.tar.gz` _(since v0.6.0+)_
+- **Intel (x86_64)** — `chuckd-macOS-x86_64-<version>.tar.gz` _(prior to v0.6.0, discontinued)_
 
 Just download, extract `chuckd` from the tar.gz, and move it to somewhere on your `$PATH`, e.g. `/usr/local/bin`.
 

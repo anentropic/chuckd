@@ -40,12 +40,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, ubuntu-24.04-arm]
         include:
           - os: macos-latest  # Apple Silicon (aarch64) runner
             platform-name: macOS-aarch64
           - os: ubuntu-latest
             platform-name: Linux-x86_64
+          - os: ubuntu-24.04-arm  # ARM64 runner
+            platform-name: Linux-aarch64
     steps:
       - uses: graalvm/setup-graalvm@v1
         with:
