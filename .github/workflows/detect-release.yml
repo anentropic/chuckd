@@ -22,14 +22,17 @@ jobs:
         run: echo "version=$(grep semver= app/src/main/resources/version.properties | sed 's/.*semver=\(.*\)/\1/')" >> $GITHUB_OUTPUT
 
       - name: Push version git tag
-        uses: julbme/gh-action-manage-tag@v1
-        with:
-          name: ${{ steps.version.outputs.version }}
-          state: present
+        # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push (see above)
+        # NOTE: this will have to be regenerated periodically via GH developer settings
+        # it is used for several things and needs at minimum:
+        # - Contents: read & write
+        # repos: anentropic/chuckd, anentropic/homebrew-tap
         env:
-          # use a PAT here rather than default `GITHUB_TOKEN` so that Actions are triggered after push (see above)
-          # NOTE: this will have to be regenerated periodically via GH developer settings
-          # it is used for several things and needs at minimum:
-          # - Contents: read & write 
-          # repos: anentropic/chuckd, anentropic/homebrew-tap
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}"
+          TAG="${{ steps.version.outputs.version }}"
+          git tag "$TAG" || echo "Tag $TAG already exists locally"
+          git push origin "$TAG" || echo "Tag $TAG already exists on remote"
