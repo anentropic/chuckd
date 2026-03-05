@@ -13,7 +13,7 @@ jobs:
       checks: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: graalvm/setup-graalvm@v1
         with:
@@ -43,7 +43,7 @@ jobs:
           distribution: 'graalvm'
           native-image-job-reports: 'true'
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build GraalVM native-image
         run: ./gradlew nativeCompile
 
