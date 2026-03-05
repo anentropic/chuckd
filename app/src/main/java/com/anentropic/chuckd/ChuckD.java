@@ -148,7 +148,9 @@ class ChuckD implements Callable<Integer> {
         configureRootLogger();
         List<String> report = getReport();
         report.forEach(System.out::println);
-        return report.size();
+        // Confluent 7.8.0+ may append {oldSchema:...} metadata entries to the report;
+        // count only actual error entries for the exit code
+        return (int) report.stream().filter(s -> !s.startsWith("{oldSchema:")).count();
     }
 
     public static void main(String... args) {

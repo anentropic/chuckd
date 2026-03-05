@@ -1,0 +1,72 @@
+name: Weekly build check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9am UTC
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+
+      - name: Build & test with Gradle
+        id: build
+        run: ./gradlew build 2>&1 | tee build-output.txt
+        continue-on-error: true
+
+      - name: Open issue for Copilot on failure
+        if: steps.build.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Ensure label exists
+          gh label create "build-failure" --color "d73a4a" --description "Automated weekly build failure" 2>/dev/null || true
+
+          # Check for existing open issue to avoid duplicates
+          existing=$(gh issue list --label "build-failure" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$existing" ]; then
+            echo "Build failure issue #${existing} already open, adding comment"
+            gh issue comment "$existing" --body "Build still failing as of $(date +%Y-%m-%d). See [workflow run](${RUN_URL})."
+            exit 1
+          fi
+
+          # Create issue body
+          tail -200 build-output.txt > build-tail.txt
+          {
+            echo "The weekly build against latest dependency versions has failed."
+            echo ""
+            echo "**Workflow run:** ${RUN_URL}"
+            echo ""
+            echo "## Build output (last 200 lines)"
+            echo ""
+            echo '```'
+            cat build-tail.txt
+            echo '```'
+            echo ""
+            echo "## What to do"
+            echo ""
+            echo "Please investigate the build failure and fix it. The build command is:"
+            echo ""
+            echo '```'
+            echo './gradlew build'
+            echo '```'
+          } > issue-body.md
+
+          gh issue create \
+            --title "Weekly build failure $(date +%Y-%m-%d)" \
+            --label "build-failure" \
+            --assignee "copilot" \
+            --body-file issue-body.md
+
+          exit 1

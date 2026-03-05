@@ -10,13 +10,18 @@ jobs:
   build-and-test-java:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
 
       - name: Build & test with Gradle
         run: ./gradlew build
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           check_name: Gradle unit test results
@@ -26,19 +31,19 @@ jobs:
   build-and-test-native-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: ayltai/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: 11
-          graalvm-version: '21.1.0'
-          native-image: true
+          java-version: '21'
+          distribution: 'graalvm'
+          native-image-job-reports: 'true'
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build GraalVM native-image
-        run: ./gradlew nativeImage
+        run: ./gradlew nativeCompile
 
       - uses: mig4/setup-bats@v1
         with:
-          bats-version: 1.3.0
+          bats-version: 1.11.1
       - run: bats --version
       - run: mkdir bats-report
 
@@ -46,7 +51,7 @@ jobs:
         run: bats --report-formatter junit --output bats-report ./bat-tests/smoke.bats
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           check_name: Native-image smoke-test results
