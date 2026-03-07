@@ -7,8 +7,8 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url 'https://packages.confluent.io/maven/' }
-    maven { url 'https://jitpack.io' }  // needed by org.everit.json.schema-1.12.2 transient dep
+    maven { url = 'https://packages.confluent.io/maven/' }
+    maven { url = 'https://jitpack.io' }  // needed by org.everit.json.schema-1.12.2 transient dep
 }
 
 dependencies {
@@ -32,6 +32,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 compileJava {

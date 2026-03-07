@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.confluent.kafka.schemaregistry.AbstractSchemaProvider;
-import io.confluent.kafka.schemaregistry.CompatibilityChecker;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
@@ -51,6 +51,11 @@ enum LogLevel {
     FATAL,
 };
 
+enum OutputFormat {
+    TEXT,
+    JSON,
+};
+
 @Command(name = "chuckd",
         mixinStandardHelpOptions = true,
         description = "Report evolution compatibility of latest vs existing schema versions.",
@@ -73,6 +78,13 @@ class ChuckD implements Callable<Integer> {
                     "'Full' means both forward and backward compatible.\n" +
                     "'Transitive' means check for compatibility against all earlier schema versions, else just the previous one."
     ) CompatibilityLevel compatibilityLevel;
+
+    @Option(names = {"-o", "--output"},
+            defaultValue = "TEXT",
+            description = "Valid values: ${COMPLETION-CANDIDATES}\n" +
+                    "Default: ${DEFAULT-VALUE}\n" +
+                    "Output format for compatibility report"
+    ) OutputFormat outputFormat;
 
     @Option(names = {"-l", "--log-level"},
             defaultValue = "OFF",
@@ -97,15 +109,6 @@ class ChuckD implements Callable<Integer> {
             SchemaFormat.JSONSCHEMA, JsonSchemaProvider.class,
             SchemaFormat.AVRO, AvroSchemaProvider.class,
             SchemaFormat.PROTOBUF, ProtobufSchemaProvider.class
-    );
-
-    Map<CompatibilityLevel, CompatibilityChecker> levelToChecker = Map.of(
-            CompatibilityLevel.BACKWARD, CompatibilityChecker.BACKWARD_CHECKER,
-            CompatibilityLevel.FORWARD, CompatibilityChecker.FORWARD_CHECKER,
-            CompatibilityLevel.FULL, CompatibilityChecker.FULL_CHECKER,
-            CompatibilityLevel.BACKWARD_TRANSITIVE, CompatibilityChecker.BACKWARD_TRANSITIVE_CHECKER,
-            CompatibilityLevel.FORWARD_TRANSITIVE, CompatibilityChecker.FORWARD_TRANSITIVE_CHECKER,
-            CompatibilityLevel.FULL_TRANSITIVE, CompatibilityChecker.FULL_TRANSITIVE_CHECKER
     );
 
     private static ParsedSchema loadSchema(AbstractSchemaProvider provider, File schemaFile) throws IOException
@@ -137,20 +140,42 @@ class ChuckD implements Callable<Integer> {
         LogManager.getRootLogger().setLevel(Level.toLevel(logLevel.name()));
     }
 
-    public List<String> getReport() throws IOException {
+    public List<SchemaIncompatibility> getStructuredReport() throws IOException {
         loadSchemas();
-        CompatibilityChecker checker = levelToChecker.get(compatibilityLevel);
-        return checker.isCompatible(newSchema, previousSchemas);
+        CompatibilityReporter reporter = new CompatibilityReporter();
+        return reporter.check(compatibilityLevel, newSchema, previousSchemas, schemaFormat);
+    }
+
+    static String formatText(List<SchemaIncompatibility> issues) {
+        StringBuilder sb = new StringBuilder();
+        for (SchemaIncompatibility issue : issues) {
+            sb.append(issue.path()).append(": ").append(issue.type())
+              .append(" (").append(issue.direction()).append(")");
+            if (issue.message() != null) {
+                sb.append(" - ").append(issue.message());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    static String formatJson(List<SchemaIncompatibility> issues) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(issues);
     }
 
     @Override
     public Integer call() throws IOException {
         configureRootLogger();
-        List<String> report = getReport();
-        report.forEach(System.out::println);
-        // Confluent 7.8.0+ may append {oldSchema:...} metadata entries to the report;
-        // count only actual error entries for the exit code
-        return (int) report.stream().filter(s -> !s.startsWith("{oldSchema:")).count();
+        List<SchemaIncompatibility> issues = getStructuredReport();
+        if (!issues.isEmpty()) {
+            String output = switch (outputFormat) {
+                case TEXT -> formatText(issues);
+                case JSON -> formatJson(issues);
+            };
+            System.out.print(output);
+        }
+        return issues.size();
     }
 
     public static void main(String... args) {

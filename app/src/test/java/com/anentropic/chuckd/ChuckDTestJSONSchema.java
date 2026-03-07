@@ -23,15 +23,17 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
             "person-base.json, person-narrowed.json",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MAX_LENGTH_ADDED"), "Expected MAX_LENGTH_ADDED in: " + error);
-        assertTrue(error.contains("#/properties/lastName/maxLength"), "Expected path #/properties/lastName/maxLength in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MAX_LENGTH_ADDED", issue.type());
+        assertEquals("#/properties/lastName/maxLength", issue.path());
+        assertEquals("forward", issue.direction());
+        assertNull(issue.message());
     }
 
     @ParameterizedTest
@@ -43,7 +45,7 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
@@ -56,15 +58,16 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
             "person-base.json, person-narrowed.json, person-base.json",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MAX_LENGTH_ADDED"), "Expected MAX_LENGTH_ADDED in: " + error);
-        assertTrue(error.contains("#/properties/lastName/maxLength"), "Expected path #/properties/lastName/maxLength in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MAX_LENGTH_ADDED", issue.type());
+        assertEquals("#/properties/lastName/maxLength", issue.path());
+        assertEquals("forward", issue.direction());
     }
 
     @ParameterizedTest
@@ -72,15 +75,17 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
             "person-base.json, person-widened.json",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("TYPE_NARROWED"), "Expected TYPE_NARROWED in: " + error);
-        assertTrue(error.contains("#/properties/age"), "Expected path #/properties/age in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("TYPE_NARROWED", issue.type());
+        assertEquals("#/properties/age", issue.path());
+        assertEquals("backward", issue.direction());
+        assertNull(issue.message());
     }
 
     @ParameterizedTest
@@ -92,7 +97,7 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
@@ -105,36 +110,39 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
             "person-base.json, person-widened.json, person-base.json",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("TYPE_NARROWED"), "Expected TYPE_NARROWED in: " + error);
-        assertTrue(error.contains("#/properties/age"), "Expected path #/properties/age in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("TYPE_NARROWED", issue.type());
+        assertEquals("#/properties/age", issue.path());
+        assertEquals("backward", issue.direction());
     }
 
     @ParameterizedTest
     @CsvSource({
-            "MAX_LENGTH_ADDED, #/properties/lastName/maxLength, person-base.json, person-narrowed.json",  // incompatibility in -> direction
-            "TYPE_NARROWED, #/properties/age, person-base.json, person-widened.json",  // incompatibility in <- direction
+            "MAX_LENGTH_ADDED, #/properties/lastName/maxLength, forward, person-base.json, person-narrowed.json",
+            "TYPE_NARROWED, #/properties/age, backward, person-base.json, person-widened.json",
     })
     public void testFullIncompatible(
             String expectedType,
             String expectedPath,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains(expectedType), "Expected " + expectedType + " in: " + error);
-        assertTrue(error.contains(expectedPath), "Expected path '" + expectedPath + "' in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals(expectedType, issue.type());
+        assertEquals(expectedPath, issue.path());
+        assertEquals(expectedDirection, issue.direction());
     }
 
     @ParameterizedTest
@@ -146,7 +154,7 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-         List<String> report = getReport(
+         List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
@@ -155,23 +163,25 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "MAX_LENGTH_ADDED, #/properties/lastName/maxLength, person-base.json, person-narrowed.json, person-base.json",  // incompatibility in -> direction
-            "TYPE_NARROWED, #/properties/age, person-base.json, person-widened.json, person-base.json",  // incompatibility in <- direction
+            "MAX_LENGTH_ADDED, #/properties/lastName/maxLength, forward, person-base.json, person-narrowed.json, person-base.json",
+            "TYPE_NARROWED, #/properties/age, backward, person-base.json, person-widened.json, person-base.json",
     })
     public void testFullTransitiveIncompatible(
             String expectedType,
             String expectedPath,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains(expectedType), "Expected " + expectedType + " in: " + error);
-        assertTrue(error.contains(expectedPath), "Expected path '" + expectedPath + "' in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals(expectedType, issue.type());
+        assertEquals(expectedPath, issue.path());
+        assertEquals(expectedDirection, issue.direction());
     }
 
     @ParameterizedTest
@@ -184,14 +194,15 @@ public class ChuckDTestJSONSchema extends ChuckDTestBase {
             we assume that io.confluent handles this correctly, this is a basic smoke test
             to check we have integrated correctly and it still works here
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("TYPE_NARROWED"), "Expected TYPE_NARROWED in: " + error);
-        assertTrue(error.contains("#/items/properties/age"), "Expected path #/items/properties/age in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("TYPE_NARROWED", issue.type());
+        assertEquals("#/items/properties/age", issue.path());
+        assertEquals("forward", issue.direction());
     }
 }
