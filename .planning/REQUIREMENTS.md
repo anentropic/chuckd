@@ -69,29 +69,29 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase ? | Pending |
-| SETUP-02 | Phase ? | Pending |
-| SETUP-03 | Phase ? | Pending |
-| BIN-01 | Phase ? | Pending |
-| BIN-02 | Phase ? | Pending |
-| BIN-03 | Phase ? | Pending |
-| CLI-01 | Phase ? | Pending |
-| CLI-02 | Phase ? | Pending |
-| VAL-01 | Phase ? | Pending |
-| VAL-02 | Phase ? | Pending |
-| VAL-03 | Phase ? | Pending |
-| GIT-01 | Phase ? | Pending |
-| GIT-02 | Phase ? | Pending |
-| GIT-03 | Phase ? | Pending |
-| REL-01 | Phase ? | Pending |
-| REL-02 | Phase ? | Pending |
-| REL-03 | Phase ? | Pending |
+| CLI-01 | Phase 1 | Pending |
+| CLI-02 | Phase 1 | Pending |
+| SETUP-01 | Phase 2 | Pending |
+| SETUP-02 | Phase 2 | Pending |
+| SETUP-03 | Phase 2 | Pending |
+| BIN-01 | Phase 2 | Pending |
+| BIN-02 | Phase 2 | Pending |
+| BIN-03 | Phase 2 | Pending |
+| VAL-01 | Phase 3 | Pending |
+| VAL-02 | Phase 3 | Pending |
+| VAL-03 | Phase 3 | Pending |
+| GIT-01 | Phase 4 | Pending |
+| GIT-02 | Phase 4 | Pending |
+| GIT-03 | Phase 4 | Pending |
+| REL-01 | Phase 4 | Pending |
+| REL-02 | Phase 4 | Pending |
+| REL-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17
+- Mapped to phases: 17
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-07*
-*Last updated: 2026-03-07 after initial definition*
+*Last updated: 2026-03-07 after roadmap creation*
