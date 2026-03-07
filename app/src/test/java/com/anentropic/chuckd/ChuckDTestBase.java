@@ -18,10 +18,10 @@ import picocli.CommandLine;
 
 public class ChuckDTestBase {
     Path baseResourcesPath = Paths.get("src","test", "resources");
-    
+
     ChuckD app;
     CommandLine cmd;
-    
+
     protected static String resourcesSubDir;
     protected static String[] baseArgs;
 
@@ -47,7 +47,7 @@ public class ChuckDTestBase {
         }
     }
 
-    public List<String> getReport(String[] testcaseBaseArgs, String[] resources) throws IOException {
+    public List<SchemaIncompatibility> getReport(String[] testcaseBaseArgs, String[] resources) throws IOException {
         List<String> args = new ArrayList<>();
         Collections.addAll(args, baseArgs);
         Collections.addAll(args, testcaseBaseArgs);
@@ -57,6 +57,6 @@ public class ChuckDTestBase {
         }
         cmd.parseArgs(args.toArray(new String[0]));
 
-        return app.getReport();
+        return app.getStructuredReport();
     }
 }

@@ -23,16 +23,18 @@ public class ChuckDTestAvro extends ChuckDTestBase {
             "person-base.avsc, person-narrowed.avsc",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains("reader union lacking writer type: LONG"), "Expected writer type LONG in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals("forward", issue.direction());
+        assertTrue(issue.message().contains("reader union lacking writer type: LONG"),
+                "Expected writer type LONG in: " + issue.message());
     }
 
     @ParameterizedTest
@@ -44,7 +46,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
@@ -57,16 +59,18 @@ public class ChuckDTestAvro extends ChuckDTestBase {
             "person-base.avsc, person-narrowed.avsc, person-base.avsc",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains("reader union lacking writer type: LONG"), "Expected writer type LONG in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals("forward", issue.direction());
+        assertTrue(issue.message().contains("reader union lacking writer type: LONG"),
+                "Expected writer type LONG in: " + issue.message());
     }
 
     @ParameterizedTest
@@ -74,16 +78,18 @@ public class ChuckDTestAvro extends ChuckDTestBase {
             "person-base.avsc, person-widened.avsc",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains("reader union lacking writer type: DOUBLE"), "Expected writer type DOUBLE in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals("backward", issue.direction());
+        assertTrue(issue.message().contains("reader union lacking writer type: DOUBLE"),
+                "Expected writer type DOUBLE in: " + issue.message());
     }
 
     @ParameterizedTest
@@ -95,7 +101,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
@@ -108,37 +114,42 @@ public class ChuckDTestAvro extends ChuckDTestBase {
             "person-base.avsc, person-widened.avsc, person-base.avsc",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains("reader union lacking writer type: DOUBLE"), "Expected writer type DOUBLE in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals("backward", issue.direction());
+        assertTrue(issue.message().contains("reader union lacking writer type: DOUBLE"),
+                "Expected writer type DOUBLE in: " + issue.message());
     }
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, person-base.avsc, person-narrowed.avsc",  // incompatibility in -> direction
-            "DOUBLE, person-base.avsc, person-widened.avsc",  // incompatibility in <- direction
+            "LONG, forward, person-base.avsc, person-narrowed.avsc",
+            "DOUBLE, backward, person-base.avsc, person-widened.avsc",
     })
     public void testFullIncompatible(
-            String expectedType,
+            String expectedWriterType,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains(expectedType), "Expected " + expectedType + " in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals(expectedDirection, issue.direction());
+        assertTrue(issue.message().contains(expectedWriterType),
+                "Expected " + expectedWriterType + " in: " + issue.message());
     }
 
     @ParameterizedTest
@@ -150,7 +161,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-         List<String> report = getReport(
+         List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
@@ -159,22 +170,25 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, person-base.avsc, person-narrowed.avsc, person-base.avsc",  // incompatibility in -> direction
-            "DOUBLE, person-base.avsc, person-widened.avsc, person-base.avsc",  // incompatibility in <- direction
+            "LONG, forward, person-base.avsc, person-narrowed.avsc, person-base.avsc",
+            "DOUBLE, backward, person-base.avsc, person-widened.avsc, person-base.avsc",
     })
     public void testFullTransitiveIncompatible(
-            String expectedType,
+            String expectedWriterType,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MISSING_UNION_BRANCH"), "Expected MISSING_UNION_BRANCH in: " + error);
-        assertTrue(error.contains("/fields/0/type/1"), "Expected path /fields/0/type/1 in: " + error);
-        assertTrue(error.contains(expectedType), "Expected " + expectedType + " in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MISSING_UNION_BRANCH", issue.type());
+        assertEquals("/fields/0/type/1", issue.path());
+        assertEquals(expectedDirection, issue.direction());
+        assertTrue(issue.message().contains(expectedWriterType),
+                "Expected " + expectedWriterType + " in: " + issue.message());
     }
 }

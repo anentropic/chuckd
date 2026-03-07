@@ -23,15 +23,17 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
             "person-base.proto, person-narrowed.proto",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/Pet"), "Expected path #/Pet in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/Pet", issue.path());
+        assertEquals("forward", issue.direction());
+        assertNull(issue.message());
     }
 
     @ParameterizedTest
@@ -43,7 +45,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD"},
                 resources
         );
@@ -56,15 +58,16 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
             "person-base.proto, person-narrowed.proto, person-base.proto",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FORWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/Pet"), "Expected path #/Pet in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/Pet", issue.path());
+        assertEquals("forward", issue.direction());
     }
 
     @ParameterizedTest
@@ -72,15 +75,17 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
             "person-base.proto, person-widened.proto",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/Food"), "Expected path #/Food in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/Food", issue.path());
+        assertEquals("backward", issue.direction());
+        assertNull(issue.message());
     }
 
     @ParameterizedTest
@@ -92,7 +97,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD"},
                 resources
         );
@@ -105,35 +110,38 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
             "person-base.proto, person-widened.proto, person-base.proto",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "BACKWARD_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/Food"), "Expected path #/Food in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/Food", issue.path());
+        assertEquals("backward", issue.direction());
     }
 
     @ParameterizedTest
     @CsvSource({
-            "Pet, person-base.proto, person-narrowed.proto",  // incompatibility in -> direction
-            "Food, person-base.proto, person-widened.proto",  // incompatibility in <- direction
+            "Pet, forward, person-base.proto, person-narrowed.proto",
+            "Food, backward, person-base.proto, person-widened.proto",
     })
     public void testFullIncompatible(
             String expectedMessage,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/" + expectedMessage), "Expected path #/" + expectedMessage + " in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/" + expectedMessage, issue.path());
+        assertEquals(expectedDirection, issue.direction());
     }
 
     @ParameterizedTest
@@ -145,7 +153,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
         /*
             non-transitive compatibility, should ignore incompatible "older" schema
          */
-         List<String> report = getReport(
+         List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL"},
                 resources
         );
@@ -154,21 +162,23 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "Pet, person-base.proto, person-narrowed.proto, person-base.proto",  // incompatibility in -> direction
-            "Food, person-base.proto, person-widened.proto, person-base.proto",  // incompatibility in <- direction
+            "Pet, forward, person-base.proto, person-narrowed.proto, person-base.proto",
+            "Food, backward, person-base.proto, person-widened.proto, person-base.proto",
     })
     public void testFullTransitiveIncompatible(
             String expectedMessage,
+            String expectedDirection,
             @AggregateWith(VarargsAggregator.class) String... resources
     ) throws IOException {
-        List<String> report = getReport(
+        List<SchemaIncompatibility> report = getReport(
                 new String[] {"-c", "FULL_TRANSITIVE"},
                 resources
         );
 
         assertTrue(report.size() >= 1);
-        String error = report.get(0);
-        assertTrue(error.contains("MESSAGE_REMOVED"), "Expected MESSAGE_REMOVED in: " + error);
-        assertTrue(error.contains("#/" + expectedMessage), "Expected path #/" + expectedMessage + " in: " + error);
+        SchemaIncompatibility issue = report.get(0);
+        assertEquals("MESSAGE_REMOVED", issue.type());
+        assertEquals("#/" + expectedMessage, issue.path());
+        assertEquals(expectedDirection, issue.direction());
     }
 }
