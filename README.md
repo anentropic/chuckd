@@ -221,8 +221,3 @@ Try it out:
 ```sh
 docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
 ```
-
-### TODOs
-
-- maybe parse and normalise the diff strings returned by confluent lib
-- add JTD support
