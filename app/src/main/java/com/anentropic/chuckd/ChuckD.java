@@ -165,6 +165,10 @@ class ChuckD implements Callable<Integer> {
         String globPattern = "glob:" + patternPath.getFileName().toString();
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
 
+        if (!Files.exists(searchRoot)) {
+            return Collections.emptyList();
+        }
+
         try (Stream<Path> stream = Files.walk(searchRoot, 1)) {
             return stream
                 .filter(p -> !Files.isDirectory(p))
