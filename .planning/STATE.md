@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: "Completed 01-cli-improvements/01-02-PLAN.md"
-last_updated: "2026-03-08T01:12:00Z"
-last_activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump)
+status: verifying
+stopped_at: Completed 01-cli-improvements/01-02-PLAN.md
+last_updated: "2026-03-08T01:16:48.743Z"
+last_activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump to 1.0.0)
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
   completed_plans: 2
   percent: 20
