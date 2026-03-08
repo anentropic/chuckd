@@ -31,6 +31,14 @@ You can then use `chuckd` in your CI/CD to validate that `current.json` is backw
 
 (`chuckd` itself doesn't have any notion of semver filenames, it's up to you to configure your CI/CD to pass in the relevant files as args. See [usage](#usage) below.)
 
+With **glob mode** you can also just point `chuckd` at a directory of versioned schema files:
+
+```sh
+chuckd "schemas/person.*.json"
+```
+
+Files are sorted with natural ordering (`v8, v9, v10` not `v10, v8, v9`), and the last match is treated as the latest schema.
+
 ### Contents
 
 - [chuckd](#chuckd)
@@ -97,25 +105,57 @@ Just download, extract `chuckd` from the tar.gz, and move it to somewhere on you
 
 ## Usage
 
-Just pass the paths of two or more schema files:
+`chuckd` has two modes:
+
+### Explicit mode
+
+Pass two or more schema file paths. The **last** argument is the new (latest) schema, all preceding arguments are previous versions:
 
 ```sh
-chuckd <latest schema> <prev schema> [<prev schema> ...]
+chuckd [options] <previous...> <new>
 ```
 
-- the new schema version should be left-most, followed by previous versions of the schema to check against, in oldest->newest order.
-- the files should all be versions of the _same_ schema
-- no output (exit: `0`) means the versions are compatible
-- if they are incompatible a non-zero exit code will be returned, and some info about the problem is printed like:  `Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}`
+```sh
+chuckd schemas/person-1.0.0.json schemas/person-1.1.0.json
+```
+
+### Glob mode
+
+Pass a single quoted glob pattern. Files are sorted with natural ordering (`v8, v9, v10` not `v10, v8, v9`) and the last match is treated as the latest schema:
+
+```sh
+chuckd [options] "schemas/person.*.json"
+```
+
+- If the glob matches 0 files: exit code 2 (usage error)
+- If the glob matches 1 file: exit code 0 (trivially compatible)
+- If the glob matches 2+ files: runs compatibility check
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Compatible (or trivially compatible: single glob match) |
+| 1 | Incompatible — breaking changes detected |
+| 2 | Usage error — bad arguments, missing files, or glob matches nothing |
+| 3 | Runtime error — file I/O failure or schema parse error |
+
+### Output
+
+- **TEXT mode** (default): no output on compatible schemas; incompatibility details on stdout if incompatible
+- **JSON mode** (`--output JSON`): always produces valid JSON — `[]` on compatible, issue array on incompatible
+- File metadata is printed to stderr by default. Use `--quiet` / `-q` to suppress it.
+
+### Options
 
 ```txt
-chuckd --help
-Usage: chuckd [-hV] [-c=<compatibilityLevel>] [-l=<logLevel>] <newSchemaFile>
-              <previousSchemaFiles>...
+Usage: chuckd [-hqV] [-c=<compatibilityLevel>] [-f=<schemaFormat>]
+              [-l=<logLevel>] [-o=<outputFormat>] <schemaArgs>...
 Report evolution compatibility of latest vs existing schema versions.
-      <newSchemaFile>
-      <previousSchemaFiles>...
-
+      <schemaArgs>...   Glob mode (1 arg): pass a quoted glob pattern, e.g.
+                          "schemas/person.*.json"
+                        Explicit mode (2+ args): <previous...> <new> — last arg
+                          is the new schema
   -c, --compatibility=<compatibilityLevel>
                         Valid values: BACKWARD, FORWARD, FULL,
                           BACKWARD_TRANSITIVE, FORWARD_TRANSITIVE,
@@ -136,13 +176,25 @@ Report evolution compatibility of latest vs existing schema versions.
   -l, --log-level=<logLevel>
                         Valid values: OFF, ALL, DEBUG, INFO, WARN, ERROR, FATAL
                         Default: OFF
+  -o, --output=<outputFormat>
+                        Valid values: TEXT, JSON
+                        Default: TEXT
+  -q, --quiet           Suppress file metadata output on stderr
   -V, --version         Print version information and exit.
+
+Exit codes:
+  0   Compatible (or trivially compatible with a single glob match)
+  1   Incompatible — breaking changes detected
+  2   Usage error — bad arguments, missing files, or glob matches nothing
+  3   Runtime error — file I/O failure or schema parse error
 ```
+
+### Docker
 
 For Docker the usage is essentially the same, but you need to mount a volume containing your schema files as `/schemas` in the container:
 
 ```sh
-docker run -v /path/to/my/schemas:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
+docker run -v /path/to/my/schemas:/schemas anentropic/chuckd person-1.0.0.json person-1.1.0.json
 ```
 
 ## Development
@@ -179,11 +231,11 @@ gradle nativeCompile
 Try it out:
 
 ```sh
-[chuckd]$ app/build/native/nativeCompile/chuckd app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ app/build/native/nativeCompile/chuckd app/src/test/resources/person-1.0.0.json app/src/test/resources/person-1.1.0.json
 Found incompatible change: Difference{jsonPath='#/properties/age', type=TYPE_NARROWED}
 [chuckd]$ echo $?
 1
-[chuckd]$ app/build/native/nativeCompile/chuckd --compatibility BACKWARD app/src/test/resources/person-1.1.0.json app/src/test/resources/person-1.0.0.json
+[chuckd]$ app/build/native/nativeCompile/chuckd --compatibility BACKWARD app/src/test/resources/person-1.0.0.json app/src/test/resources/person-1.1.0.json
 [chuckd]$ echo $?
 0
 ```
@@ -219,5 +271,5 @@ docker build -t anentropic/chuckd .
 Try it out:
 
 ```sh
-docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.1.0.json person-1.0.0.json
+docker run -v $(pwd)/app/src/test/resources:/schemas anentropic/chuckd person-1.0.0.json person-1.1.0.json
 ```
