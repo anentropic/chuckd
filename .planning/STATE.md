@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: "Completed 01-cli-improvements/01-01-PLAN.md"
-last_updated: "2026-03-08T00:21:44Z"
-last_activity: 2026-03-08 — Plan 01-01 complete
+stopped_at: "Completed 01-cli-improvements/01-02-PLAN.md"
+last_updated: "2026-03-08T01:12:00Z"
+last_activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump)
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 1
-  completed_plans: 1
-  percent: 10
+  total_plans: 2
+  completed_plans: 2
+  percent: 20
 ---
 
 # Project State
@@ -26,27 +26,27 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ## Current Position
 
 Phase: 1 of 4 (CLI Improvements)
-Plan: 1 of TBD in current phase
-Status: In progress
-Last activity: 2026-03-08 — Plan 01-01 complete (typed exit codes, glob mode, natural sort)
+Plan: 2 of 2 in current phase
+Status: All plans complete — pending verification
+Last activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump to 1.0.0)
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 5 min
-- Total execution time: 0.1 hours
+- Total plans completed: 2
+- Average duration: 10 min
+- Total execution time: 0.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-cli-improvements | 1 | 5 min | 5 min |
+| 01-cli-improvements | 2 | 20 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (5 min)
+- Last 5 plans: 01-01 (5 min), 01-02 (15 min)
 - Trend: -
 
 *Updated after each plan completion*
@@ -76,7 +76,9 @@ Recent decisions affecting current work:
 - git-compare mode requires fetch-depth: 0 in caller's checkout step; add shallow-clone detection
 - actions/checkout version: existing workflows use @v6 — verify canonical version before writing action.yml
 - macOS Gatekeeper may require xattr -d com.apple.quarantine; scope v1 Linux-only for safety
-- smoke.bats still needs updating for new arg order and exit code assertions (deferred)
+- smoke.bats updated: reversed arg order, exact exit code assertions, new tests for glob/quiet/JSON
+- Version bumped to 1.0.0 (breaking change — arg order reversal)
+- BATS tests written but need native binary to run (deferred to final validation)
 
 ### Pending Todos
 
@@ -88,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08T00:21:44Z
-Stopped at: Completed 01-cli-improvements/01-01-PLAN.md
-Resume file: .planning/phases/01-cli-improvements/01-01-SUMMARY.md
+Last session: 2026-03-08T01:12:00Z
+Stopped at: Completed 01-cli-improvements/01-02-PLAN.md
+Resume file: .planning/phases/01-cli-improvements/01-02-SUMMARY.md
