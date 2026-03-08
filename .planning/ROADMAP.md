@@ -83,5 +83,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. CLI Improvements | 1/2 | In Progress|  |
 | 2. Action Foundation | 2/2 | Complete    | 2026-03-08 |
-| 3. Core Validation | 0/2 | Planned | - |
+| 3. Core Validation | 1/2 | In Progress|  |
 | 4. Git Compare and Release | 0/TBD | Not started | - |

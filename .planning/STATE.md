@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-08T15:12:11.728Z"
-last_activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump to 1.0.0)
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-08T15:30:00Z"
+last_activity: 2026-03-08 — Plan 03-01 complete (action.yml inputs/outputs, validate.js pure functions)
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 20
+  total_plans: 8
+  completed_plans: 5
+  percent: 40
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** Developers can validate schema evolution compatibility in their CI/CD pipeline without running a full Schema Registry.
-**Current focus:** Phase 1 - CLI Improvements
+**Current focus:** Phase 3 - Core Validation
 
 ## Current Position
 
-Phase: 1 of 4 (CLI Improvements)
-Plan: 2 of 2 in current phase
-Status: All plans complete — pending verification
-Last activity: 2026-03-08 — Plan 01-02 complete (smoke tests, README, version bump to 1.0.0)
+Phase: 3 of 4 (Core Validation)
+Plan: 1 of 2 in current phase (03-01 complete)
+Status: In progress
+Last activity: 2026-03-08 — Plan 03-01 complete (action.yml inputs/outputs, validate.js pure functions)
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - naturalCompare() uses Long.parseLong for numeric chunks to avoid integer overflow
 - [Phase 02-action-foundation]: @actions/core pinned to ^1.11.1 not 3.0.0: ESM-only exports in 3.0.0 break ncc 0.38.4 CJS bundling
 - [Phase 02-action-foundation]: chuckd-action repo created locally with git init (gh repo create blocked); user adds remote manually
+- [Phase 03-core-validation]: action.yml uses node24 runner (not composite), so no env block for INPUT_* vars — core.getInput() reads them natively from runner-set env
+- [Phase 03-core-validation]: detectMode uses !!value.trim() for emptiness; buildArgs splits previousSchemas on /\s+/ for space and newline support
 
 ### Key Implementation Notes
 
@@ -82,6 +84,9 @@ Recent decisions affecting current work:
 - smoke.bats updated: reversed arg order, exact exit code assertions, new tests for glob/quiet/JSON
 - Version bumped to 1.0.0 (breaking change — arg order reversal)
 - BATS tests written but need native binary to run (deferred to final validation)
+- Phase 03-01 DONE: validate.js pure functions (readInputs, detectMode, buildArgs) + action.yml updated
+- action.yml: schema-pattern (glob), output-format (TEXT/JSON), schema-file now optional, format default JSONSCHEMA, exit-code output added
+- 28 tests passing in chuckd-action (16 existing + 12 new validate tests)
 
 ### Pending Todos
 

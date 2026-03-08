@@ -26,8 +26,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Schema Validation — Explicit Path Mode
 
-- [ ] **VAL-01**: User can specify schema file and one or more previous schema file paths for comparison
-- [ ] **VAL-02**: Action maps format, compatibility, and log-level inputs to chuckd CLI flags
+- [x] **VAL-01**: User can specify schema file and one or more previous schema file paths for comparison
+- [x] **VAL-02**: Action maps format, compatibility, and log-level inputs to chuckd CLI flags
 - [ ] **VAL-03**: Action outputs incompatibility details to GitHub Actions logs on failure
 
 ### Schema Validation — Git Compare Mode
@@ -77,8 +77,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | BIN-01 | Phase 2 | Pending |
 | BIN-02 | Phase 2 | Pending |
 | BIN-03 | Phase 2 | Pending |
-| VAL-01 | Phase 3 | Pending |
-| VAL-02 | Phase 3 | Pending |
+| VAL-01 | Phase 3 | Complete |
+| VAL-02 | Phase 3 | Complete |
 | VAL-03 | Phase 3 | Pending |
 | GIT-01 | Phase 4 | Pending |
 | GIT-02 | Phase 4 | Pending |
