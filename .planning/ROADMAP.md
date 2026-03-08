@@ -49,7 +49,7 @@ Plans:
 - [ ] 02-02-PLAN.md — Platform detection, version resolution, binary download/cache, unit tests, README
 
 ### Phase 3: Core Validation
-**Goal**: Users can validate schema compatibility in explicit-path mode — specifying schema files directly — and the workflow fails with log output when schemas are incompatible
+**Goal**: Users can validate schema compatibility in explicit-path and glob modes, with the workflow failing on incompatibility and details appearing in GitHub Actions logs
 **Depends on**: Phase 2
 **Requirements**: VAL-01, VAL-02, VAL-03
 **Success Criteria** (what must be TRUE):
@@ -57,7 +57,10 @@ Plans:
   2. The action maps format, compatibility, and log-level inputs to the correct chuckd CLI flags
   3. When schemas are incompatible, the workflow step fails and incompatibility details appear in the GitHub Actions log
   4. When schemas are compatible, the workflow step passes with no failure
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Update action.yml inputs/outputs, create validate.js pure functions (detectMode, buildArgs) with unit tests
+- [ ] 03-02-PLAN.md — Add chuckd execution logic (spawn, GHA annotations, log grouping), wire into index.js, rebuild dist
 
 ### Phase 4: Git Compare and Release
 **Goal**: Users can compare a schema against its version on a base branch (eliminating the need for a separate previous-schema file), and the action is fully tested and published with a stable versioning strategy
@@ -79,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CLI Improvements | 1/2 | In Progress|  |
-| 2. Action Foundation | 1/2 | Complete    | 2026-03-08 |
-| 3. Core Validation | 0/TBD | Not started | - |
+| 2. Action Foundation | 2/2 | Complete    | 2026-03-08 |
+| 3. Core Validation | 0/2 | Planned | - |
 | 4. Git Compare and Release | 0/TBD | Not started | - |
