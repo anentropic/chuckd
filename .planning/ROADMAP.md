@@ -28,7 +28,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Running chuckd with a compatible schema exits with code 0
   3. Running chuckd with invalid arguments exits with code 2
   4. User can pass a glob pattern (e.g. "schemas/person.*") and chuckd finds matching files lexicographically, treating the last match as the latest schema
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Refactor ChuckD.java: typed exit codes, arg reversal, glob mode, quiet flag, unit tests
+- [ ] 01-02-PLAN.md — BATS smoke tests, README update, version bump
 
 ### Phase 2: Action Foundation
 **Goal**: A valid composite action exists in anentropic/chuckd-action with all inputs declared, correct marketplace metadata, and the ability to download the right chuckd binary for the runner's platform
@@ -72,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CLI Improvements | 0/TBD | Not started | - |
+| 1. CLI Improvements | 0/2 | Planned | - |
 | 2. Action Foundation | 0/TBD | Not started | - |
 | 3. Core Validation | 0/TBD | Not started | - |
 | 4. Git Compare and Release | 0/TBD | Not started | - |
