@@ -43,7 +43,10 @@ Plans:
   3. On a Linux x86_64 runner, the action downloads the Linux-x86_64 chuckd binary and places it in $RUNNER_TEMP
   4. On a Linux aarch64 runner, the action downloads the Linux-aarch64 binary
   5. On an unsupported platform, the action fails with a clear error message identifying the unsupported platform
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Repo scaffold: action.yml with marketplace metadata and inputs, package.json, Jest setup
+- [ ] 02-02-PLAN.md — Platform detection, version resolution, binary download/cache, unit tests, README
 
 ### Phase 3: Core Validation
 **Goal**: Users can validate schema compatibility in explicit-path mode — specifying schema files directly — and the workflow fails with log output when schemas are incompatible
@@ -76,6 +79,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CLI Improvements | 1/2 | In Progress|  |
-| 2. Action Foundation | 0/TBD | Not started | - |
+| 2. Action Foundation | 0/2 | Not started | - |
 | 3. Core Validation | 0/TBD | Not started | - |
 | 4. Git Compare and Release | 0/TBD | Not started | - |
