@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Action Setup
 
-- [ ] **SETUP-01**: Action has `action.yml` at repo root with name, description, and branding metadata for GitHub Marketplace
-- [ ] **SETUP-02**: Action declares inputs: schema file, previous schemas, format, compatibility level, log level, chuckd version, base-ref
+- [x] **SETUP-01**: Action has `action.yml` at repo root with name, description, and branding metadata for GitHub Marketplace
+- [x] **SETUP-02**: Action declares inputs: schema file, previous schemas, format, compatibility level, log level, chuckd version, base-ref
 - [ ] **SETUP-03**: Action auto-resolves latest chuckd release version when version input is not specified
 
 ### Binary Management
@@ -71,8 +71,8 @@ Deferred to future release. Tracked but not in current roadmap.
 |-------------|-------|--------|
 | CLI-01 | Phase 1 | Complete |
 | CLI-02 | Phase 1 | Complete |
-| SETUP-01 | Phase 2 | Pending |
-| SETUP-02 | Phase 2 | Pending |
+| SETUP-01 | Phase 2 | Complete |
+| SETUP-02 | Phase 2 | Complete |
 | SETUP-03 | Phase 2 | Pending |
 | BIN-01 | Phase 2 | Pending |
 | BIN-02 | Phase 2 | Pending |
