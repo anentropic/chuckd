@@ -75,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CLI Improvements | 0/2 | Planned | - |
+| 1. CLI Improvements | 1/2 | In Progress|  |
 | 2. Action Foundation | 0/TBD | Not started | - |
 | 3. Core Validation | 0/TBD | Not started | - |
 | 4. Git Compare and Release | 0/TBD | Not started | - |

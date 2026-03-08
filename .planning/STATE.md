@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-07T23:45:47.401Z"
-last_activity: 2026-03-07 — Roadmap created
+status: in-progress
+stopped_at: "Completed 01-cli-improvements/01-01-PLAN.md"
+last_updated: "2026-03-08T00:21:44Z"
+last_activity: 2026-03-08 — Plan 01-01 complete
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 1
+  completed_plans: 1
+  percent: 10
 ---
 
 # Project State
@@ -26,27 +26,27 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ## Current Position
 
 Phase: 1 of 4 (CLI Improvements)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-07 — Roadmap created
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-03-08 — Plan 01-01 complete (typed exit codes, glob mode, natural sort)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 5 min
+- Total execution time: 0.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-cli-improvements | 1 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: none yet
+- Last 5 plans: 01-01 (5 min)
 - Trend: -
 
 *Updated after each plan completion*
@@ -62,15 +62,21 @@ Recent decisions affecting current work:
 - Separate repo (chuckd-action): independent version tags, clean marketplace publishing
 - Fail check only (no PR comments): keep v1 simple, log output sufficient
 - User-configured paths (no auto-detect): more predictable, works with any repo structure
+- Typed exit codes (0/1/2/3) with picocli @Command annotations and IExitCodeExceptionMapper
+- Reversed arg order: last arg is new schema (enables natural shell glob expansion)
+- Single List<String> schemaArgs with runtime size check for dual-mode dispatch (glob vs explicit)
+- naturalCompare() uses Long.parseLong for numeric chunks to avoid integer overflow
 
 ### Key Implementation Notes
 
-- CLI-01/CLI-02 are changes to chuckd binary in THIS repo; all other phases are in anentropic/chuckd-action
-- chuckd currently returns issues.size() as exit code — must normalize to 0/1 (false-pass risk with 256+ issues)
+- CLI-01/CLI-02 DONE: chuckd now returns typed exit codes (0/1/2/3) and supports glob mode
+- CLI arg order REVERSED (breaking change): was `<new> <previous...>`, now `<previous...> <new>`
+- All existing tests updated for new arg order — 73 tests passing
 - Platform name mapping required: GHA uses X64/ARM64, artifacts use x86_64/aarch64
 - git-compare mode requires fetch-depth: 0 in caller's checkout step; add shallow-clone detection
 - actions/checkout version: existing workflows use @v6 — verify canonical version before writing action.yml
 - macOS Gatekeeper may require xattr -d com.apple.quarantine; scope v1 Linux-only for safety
+- smoke.bats still needs updating for new arg order and exit code assertions (deferred)
 
 ### Pending Todos
 
@@ -82,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-07T23:45:47.399Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-cli-improvements/01-CONTEXT.md
+Last session: 2026-03-08T00:21:44Z
+Stopped at: Completed 01-cli-improvements/01-01-PLAN.md
+Resume file: .planning/phases/01-cli-improvements/01-01-SUMMARY.md

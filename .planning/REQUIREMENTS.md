@@ -21,8 +21,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CLI Improvements
 
-- [ ] **CLI-01**: chuckd uses typed exit codes (0=compatible, 1=incompatible, 2=usage error) instead of returning issues count
-- [ ] **CLI-02**: chuckd accepts a glob pattern (e.g. "schemas/person.*") and finds/sorts matching files lexicographically, treating the last match as latest schema
+- [x] **CLI-01**: chuckd uses typed exit codes (0=compatible, 1=incompatible, 2=usage error) instead of returning issues count
+- [x] **CLI-02**: chuckd accepts a glob pattern (e.g. "schemas/person.*") and finds/sorts matching files lexicographically, treating the last match as latest schema
 
 ### Schema Validation — Explicit Path Mode
 
@@ -69,8 +69,8 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-01 | Phase 1 | Pending |
-| CLI-02 | Phase 1 | Pending |
+| CLI-01 | Phase 1 | Complete |
+| CLI-02 | Phase 1 | Complete |
 | SETUP-01 | Phase 2 | Pending |
 | SETUP-02 | Phase 2 | Pending |
 | SETUP-03 | Phase 2 | Pending |
