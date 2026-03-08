@@ -20,7 +20,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-narrowed.proto",
+            "person-narrowed.proto, person-base.proto",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -38,8 +38,8 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-widened.proto",
-            "person-base.proto, person-narrowed.proto, person-widened.proto",
+            "person-widened.proto, person-base.proto",
+            "person-narrowed.proto, person-widened.proto, person-base.proto",
     })
     public void testForwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -55,7 +55,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-narrowed.proto, person-base.proto",
+            "person-narrowed.proto, person-base.proto, person-base.proto",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -72,7 +72,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-widened.proto",
+            "person-widened.proto, person-base.proto",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -90,8 +90,8 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-narrowed.proto",
-            "person-base.proto, person-widened.proto, person-narrowed.proto",
+            "person-narrowed.proto, person-base.proto",
+            "person-widened.proto, person-narrowed.proto, person-base.proto",
     })
     public void testBackwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -107,7 +107,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.proto, person-widened.proto, person-base.proto",
+            "person-widened.proto, person-base.proto, person-base.proto",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -124,8 +124,8 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "Pet, forward, person-base.proto, person-narrowed.proto",
-            "Food, backward, person-base.proto, person-widened.proto",
+            "Pet, forward, person-narrowed.proto, person-base.proto",
+            "Food, backward, person-widened.proto, person-base.proto",
     })
     public void testFullIncompatible(
             String expectedMessage,
@@ -147,7 +147,7 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
     @ParameterizedTest
     @CsvSource({
             "person-base.proto, person-base.proto",
-            "person-base.proto, person-narrowed.proto, person-base.proto",
+            "person-narrowed.proto, person-base.proto, person-base.proto",
     })
     public void testFullCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -162,8 +162,8 @@ public class ChuckDTestProtobuf extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "Pet, forward, person-base.proto, person-narrowed.proto, person-base.proto",
-            "Food, backward, person-base.proto, person-widened.proto, person-base.proto",
+            "Pet, forward, person-narrowed.proto, person-base.proto, person-base.proto",
+            "Food, backward, person-widened.proto, person-base.proto, person-base.proto",
     })
     public void testFullTransitiveIncompatible(
             String expectedMessage,

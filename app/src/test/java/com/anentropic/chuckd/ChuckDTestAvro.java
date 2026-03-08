@@ -20,7 +20,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc",
+            "person-narrowed.avsc, person-base.avsc",
     })
     public void testForwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -39,8 +39,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc",
-            "person-base.avsc, person-narrowed.avsc, person-widened.avsc",
+            "person-widened.avsc, person-base.avsc",
+            "person-narrowed.avsc, person-widened.avsc, person-base.avsc",
     })
     public void testForwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -56,7 +56,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc, person-base.avsc",
+            "person-narrowed.avsc, person-base.avsc, person-base.avsc",
     })
     public void testForwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -75,7 +75,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc",
+            "person-widened.avsc, person-base.avsc",
     })
     public void testBackwardIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -94,8 +94,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-narrowed.avsc",
-            "person-base.avsc, person-widened.avsc, person-narrowed.avsc",
+            "person-narrowed.avsc, person-base.avsc",
+            "person-widened.avsc, person-narrowed.avsc, person-base.avsc",
     })
     public void testBackwardCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -111,7 +111,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "person-base.avsc, person-widened.avsc, person-base.avsc",
+            "person-widened.avsc, person-base.avsc, person-base.avsc",
     })
     public void testBackwardTransitiveIncompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         List<SchemaIncompatibility> report = getReport(
@@ -130,8 +130,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, forward, person-base.avsc, person-narrowed.avsc",
-            "DOUBLE, backward, person-base.avsc, person-widened.avsc",
+            "LONG, forward, person-narrowed.avsc, person-base.avsc",
+            "DOUBLE, backward, person-widened.avsc, person-base.avsc",
     })
     public void testFullIncompatible(
             String expectedWriterType,
@@ -155,7 +155,7 @@ public class ChuckDTestAvro extends ChuckDTestBase {
     @ParameterizedTest
     @CsvSource({
             "person-base.avsc, person-base.avsc",
-            "person-base.avsc, person-narrowed.avsc, person-base.avsc",
+            "person-narrowed.avsc, person-base.avsc, person-base.avsc",
     })
     public void testFullCompatible(@AggregateWith(VarargsAggregator.class) String... resources) throws IOException {
         /*
@@ -170,8 +170,8 @@ public class ChuckDTestAvro extends ChuckDTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "LONG, forward, person-base.avsc, person-narrowed.avsc, person-base.avsc",
-            "DOUBLE, backward, person-base.avsc, person-widened.avsc, person-base.avsc",
+            "LONG, forward, person-narrowed.avsc, person-base.avsc, person-base.avsc",
+            "DOUBLE, backward, person-widened.avsc, person-base.avsc, person-base.avsc",
     })
     public void testFullTransitiveIncompatible(
             String expectedWriterType,

@@ -47,16 +47,35 @@ public class ChuckDTestBase {
         }
     }
 
+    /**
+     * Build the argument list and call getStructuredReport() directly.
+     *
+     * Resources are appended as positional args in CsvSource order.
+     * After arg order reversal: the LAST resource is the "new" schema,
+     * all prior resources are "previous" schemas (oldest to newest).
+     *
+     * CsvSource patterns in subclasses must list previous schemas first
+     * and the new schema last.
+     */
     public List<SchemaIncompatibility> getReport(String[] testcaseBaseArgs, String[] resources) throws IOException {
         List<String> args = new ArrayList<>();
         Collections.addAll(args, baseArgs);
         Collections.addAll(args, testcaseBaseArgs);
+
+        List<Path> resolvedPaths = new ArrayList<>();
         for (String resPath : resources) {
-            String arg = baseResourcesPath.resolve(resourcesSubDir).resolve(resPath).toFile().getAbsolutePath();
-            args.add(arg);
+            Path resolved = baseResourcesPath.resolve(resourcesSubDir).resolve(resPath).toAbsolutePath();
+            resolvedPaths.add(resolved);
+            args.add(resolved.toString());
         }
+
+        // Parse options (but not positional args) so that flags like -c, -f, -o are applied
         cmd.parseArgs(args.toArray(new String[0]));
 
-        return app.getStructuredReport();
+        // Use the new path-based API: last path = new schema, rest = previous
+        Path newSchemaPath = resolvedPaths.get(resolvedPaths.size() - 1);
+        List<Path> previousPaths = resolvedPaths.subList(0, resolvedPaths.size() - 1);
+
+        return app.getStructuredReport(newSchemaPath, previousPaths);
     }
 }
