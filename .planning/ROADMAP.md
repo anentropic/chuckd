@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: CLI Improvements** - Fix chuckd exit codes and add glob input support (this repo)
 - [x] **Phase 2: Action Foundation** - Create action.yml scaffold with input declarations, platform detection, and binary download (completed 2026-03-08)
-- [ ] **Phase 3: Core Validation** - Wire inputs to chuckd CLI in explicit-path mode; fail workflow on incompatibility
+- [x] **Phase 3: Core Validation** - Wire inputs to chuckd CLI in explicit-path mode; fail workflow on incompatibility (completed 2026-03-09)
 - [ ] **Phase 4: Git Compare and Release** - Add git-based schema comparison, integration tests, and versioning strategy
 
 ## Phase Details
@@ -59,8 +59,8 @@ Plans:
   4. When schemas are compatible, the workflow step passes with no failure
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Update action.yml inputs/outputs, create validate.js pure functions (detectMode, buildArgs) with unit tests
-- [ ] 03-02-PLAN.md — Add chuckd execution logic (spawn, GHA annotations, log grouping), wire into index.js, rebuild dist
+- [x] 03-01-PLAN.md — Update action.yml inputs/outputs, create validate.js pure functions (detectMode, buildArgs) with unit tests
+- [x] 03-02-PLAN.md — Add chuckd execution logic (spawn, GHA annotations, log grouping), wire into index.js, rebuild dist
 
 ### Phase 4: Git Compare and Release
 **Goal**: Users can compare a schema against its version on a base branch (eliminating the need for a separate previous-schema file), and the action is fully tested and published with a stable versioning strategy
@@ -83,5 +83,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. CLI Improvements | 1/2 | In Progress|  |
 | 2. Action Foundation | 2/2 | Complete    | 2026-03-08 |
-| 3. Core Validation | 1/2 | In Progress|  |
+| 3. Core Validation | 2/2 | Complete    | 2026-03-09 |
 | 4. Git Compare and Release | 0/TBD | Not started | - |
