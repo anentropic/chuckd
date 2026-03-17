@@ -74,7 +74,7 @@ Plans:
   5. The release process creates and maintains a floating v1 tag so users can pin to uses: anentropic/chuckd-action@v1
 **Plans**: 2 plans
 Plans:
-- [ ] 04-01-PLAN.md — Implement git-compare mode: extractBaseRefSchema(), shallow clone detection, wire into runValidation(), unit tests, rebuild dist
+- [x] 04-01-PLAN.md — Implement git-compare mode: extractBaseRefSchema(), shallow clone detection, wire into runValidation(), unit tests, rebuild dist
 - [ ] 04-02-PLAN.md — Release workflow (floating v1 tag), chuckd-example integration test repo scaffold, human verification
 
 ## Progress
@@ -87,4 +87,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. CLI Improvements | 1/2 | In Progress|  |
 | 2. Action Foundation | 2/2 | Complete    | 2026-03-08 |
 | 3. Core Validation | 2/2 | Complete    | 2026-03-09 |
-| 4. Git Compare and Release | 0/2 | Not started | - |
+| 4. Git Compare and Release | 1/2 | In Progress | - |

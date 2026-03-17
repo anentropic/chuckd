@@ -32,9 +32,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Schema Validation — Git Compare Mode
 
-- [ ] **GIT-01**: User can specify base-ref input to compare schema against the same file on a different branch
-- [ ] **GIT-02**: Action extracts previous schema version from base branch using git show
-- [ ] **GIT-03**: Action detects shallow clone and fails with clear message advising fetch-depth: 0
+- [x] **GIT-01**: User can specify base-ref input to compare schema against the same file on a different branch
+- [x] **GIT-02**: Action extracts previous schema version from base branch using git show
+- [x] **GIT-03**: Action detects shallow clone and fails with clear message advising fetch-depth: 0
 
 ### Release & Testing
 
@@ -80,9 +80,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | VAL-01 | Phase 3 | Complete |
 | VAL-02 | Phase 3 | Complete |
 | VAL-03 | Phase 3 | Complete |
-| GIT-01 | Phase 4 | Pending |
-| GIT-02 | Phase 4 | Pending |
-| GIT-03 | Phase 4 | Pending |
+| GIT-01 | Phase 4 | Complete |
+| GIT-02 | Phase 4 | Complete |
+| GIT-03 | Phase 4 | Complete |
 | REL-01 | Phase 4 | Pending |
 | REL-02 | Phase 4 | Pending |
 | REL-03 | Phase 4 | Pending |
@@ -94,4 +94,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-03-07*
-*Last updated: 2026-03-09 after plan 03-02 completion*
+*Last updated: 2026-03-17 after plan 04-01 completion*

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-09T10:19:14.805Z"
-last_activity: 2026-03-09 — Plan 03-02 complete (runValidation execution logic, index.js wired, dist rebuilt)
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-17T09:38:00Z"
+last_activity: 2026-03-17 — Plan 04-01 complete (git-compare mode in chuckd-action, extractBaseRefSchema, 49 tests passing, dist rebuilt)
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 50
+  total_plans: 8
+  completed_plans: 7
+  percent: 62
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ## Current Position
 
-Phase: 3 of 4 (Core Validation)
-Plan: 2 of 2 in current phase (03-02 complete — phase 3 DONE)
+Phase: 4 of 4 (git-compare and release)
+Plan: 1 of 2 in current phase (04-01 complete — git-compare mode implemented)
 Status: In progress
-Last activity: 2026-03-09 — Plan 03-02 complete (runValidation execution logic, index.js wired, dist rebuilt)
+Last activity: 2026-03-17 — Plan 04-01 complete (git-compare mode in chuckd-action, extractBaseRefSchema, 49 tests passing, dist rebuilt)
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 62%
 
 ## Performance Metrics
 
@@ -74,6 +74,9 @@ Recent decisions affecting current work:
 - [Phase 03-core-validation]: runChuckd always resolves (never rejects) — exitCode=-1 on spawn error; keeps error handling logic in runValidation
 - [Phase 03-core-validation]: setOutput('exit-code') called before exit code switch so it is always set, even on success
 - [Phase 03-core-validation]: endGroup in finally block guarantees GHA log group always closes
+- [Phase 04-git-compare-and-release]: promisify(execFile) at module level so Jest ESM mock of node:util intercepts it cleanly at import time
+- [Phase 04-git-compare-and-release]: git-compare reuses buildArgs('explicit') with temp path as previousSchemas — no new case needed in buildArgs
+- [Phase 04-git-compare-and-release]: handleExitCode() extracted as private helper to eliminate exit-code switch duplication between git-compare and explicit/glob paths
 
 ### Key Implementation Notes
 
@@ -91,6 +94,9 @@ Recent decisions affecting current work:
 - action.yml: schema-pattern (glob), output-format (TEXT/JSON), schema-file now optional, format default JSONSCHEMA, exit-code output added
 - Phase 03-02 DONE: runValidation() execution logic, index.js wired, dist/index.js rebuilt
 - 39 tests passing in chuckd-action (16 existing + 12 pure function + 11 execution)
+- Phase 04-01 DONE: extractBaseRefSchema() + git-compare mode in runValidation() + handleExitCode() helper
+- 49 tests passing in chuckd-action (39 existing + 5 extractBaseRefSchema + 5 runValidation git-compare)
+- dist/index.js rebuilt with git-compare logic (extractBaseRefSchema referenced 2x in bundle)
 
 ### Pending Todos
 
@@ -102,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T02:12:00Z
-Stopped at: Completed 03-02-PLAN.md
-Resume file: .planning/phases/03-core-validation/03-02-SUMMARY.md
+Last session: 2026-03-17T09:38:00Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-git-compare-and-release/04-01-SUMMARY.md
