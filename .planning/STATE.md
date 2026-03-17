@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-17T09:38:00Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-17T09:39:09.855Z"
 last_activity: 2026-03-17 — Plan 04-01 complete (git-compare mode in chuckd-action, extractBaseRefSchema, 49 tests passing, dist rebuilt)
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 62
 ---
 
@@ -51,6 +51,7 @@ Progress: [███████░░░] 62%
 
 *Updated after each plan completion*
 | Phase 02-action-foundation P01 | 42 | 2 tasks | 8 files |
+| Phase 04-git-compare-and-release P02 | 2 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 04-git-compare-and-release]: promisify(execFile) at module level so Jest ESM mock of node:util intercepts it cleanly at import time
 - [Phase 04-git-compare-and-release]: git-compare reuses buildArgs('explicit') with temp path as previousSchemas — no new case needed in buildArgs
 - [Phase 04-git-compare-and-release]: handleExitCode() extracted as private helper to eliminate exit-code switch duplication between git-compare and explicit/glob paths
+- [Phase 04-git-compare-and-release]: chuckd-example uses two-commit strategy: baseline tag at v1 content, HEAD at v2/breaking content, enabling git-compare tests against baseline ref
+- [Phase 04-git-compare-and-release]: integration-test.yml uses anentropic/chuckd-action@structured-output branch ref for pre-release testing; expected-failure assertions use steps.X.outcome not .conclusion
 
 ### Key Implementation Notes
 
@@ -108,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T09:38:00Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-git-compare-and-release/04-01-SUMMARY.md
+Last session: 2026-03-17T09:39:09.853Z
+Stopped at: Completed 04-02-PLAN.md
+Resume file: None

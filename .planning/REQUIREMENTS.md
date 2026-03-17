@@ -38,9 +38,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Release & Testing
 
-- [ ] **REL-01**: Integration test workflow validates action on Linux x86_64, Linux aarch64, and macOS aarch64 runners
-- [ ] **REL-02**: Integration test covers both explicit-path mode and git-compare mode
-- [ ] **REL-03**: Release process includes floating v1 tag that tracks latest release
+- [x] **REL-01**: Integration test workflow validates action on Linux x86_64, Linux aarch64, and macOS aarch64 runners
+- [x] **REL-02**: Integration test covers both explicit-path mode and git-compare mode
+- [x] **REL-03**: Release process includes floating v1 tag that tracks latest release
 
 ## v2 Requirements
 
@@ -83,9 +83,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | GIT-01 | Phase 4 | Complete |
 | GIT-02 | Phase 4 | Complete |
 | GIT-03 | Phase 4 | Complete |
-| REL-01 | Phase 4 | Pending |
-| REL-02 | Phase 4 | Pending |
-| REL-03 | Phase 4 | Pending |
+| REL-01 | Phase 4 | Complete |
+| REL-02 | Phase 4 | Complete |
+| REL-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 17 total

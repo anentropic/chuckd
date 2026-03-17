@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: CLI Improvements** - Fix chuckd exit codes and add glob input support (this repo)
 - [x] **Phase 2: Action Foundation** - Create action.yml scaffold with input declarations, platform detection, and binary download (completed 2026-03-08)
 - [x] **Phase 3: Core Validation** - Wire inputs to chuckd CLI in explicit-path mode; fail workflow on incompatibility (completed 2026-03-09)
-- [ ] **Phase 4: Git Compare and Release** - Add git-based schema comparison, integration tests, and versioning strategy
+- [x] **Phase 4: Git Compare and Release** - Add git-based schema comparison, integration tests, and versioning strategy (completed 2026-03-17)
 
 ## Phase Details
 
@@ -87,4 +87,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. CLI Improvements | 1/2 | In Progress|  |
 | 2. Action Foundation | 2/2 | Complete    | 2026-03-08 |
 | 3. Core Validation | 2/2 | Complete    | 2026-03-09 |
-| 4. Git Compare and Release | 1/2 | In Progress | - |
+| 4. Git Compare and Release | 2/2 | Complete   | 2026-03-17 |
