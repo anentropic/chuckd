@@ -6,6 +6,7 @@ on:
   push:
     tags:
       - '*.*.*'
+      - '*.*.*-*'
   workflow_dispatch:
     inputs:
       version:
@@ -20,7 +21,14 @@ jobs:
       version: ${{ steps.tag-name.outputs.version }}
     steps:
       - id: tag-name
-        run: echo "version=${{ github.ref_name || github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        run: |
+          VERSION="${{ github.ref_name || github.event.inputs.version }}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
 
       # we'll upload files to it from each of the `build-native-image` matrix jobs
       # then publish ("un-draft") it at the end
@@ -31,7 +39,7 @@ jobs:
           tag_name: ${{ steps.tag-name.outputs.version }}
           name: ${{ steps.tag-name.outputs.version }}
           draft: true
-          prerelease: false
+          prerelease: ${{ steps.tag-name.outputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -86,6 +94,7 @@ jobs:
 
   build-docker-image:
     needs: draft-github-release
+    if: ${{ !contains(needs.draft-github-release.outputs.version, '-') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
