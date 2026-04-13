@@ -34,7 +34,7 @@ jobs:
       # then publish ("un-draft") it at the end
       - name: Create draft GitHub release
         id: create-release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag-name.outputs.version }}
           name: ${{ steps.tag-name.outputs.version }}
@@ -75,7 +75,7 @@ jobs:
         run: (cd ./app/build/native/nativeCompile/ && tar -czvf ${{ steps.name-artifact.outputs.name }} chuckd)
 
       - name: Upload release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.draft-github-release.outputs.version }}
           files: ./app/build/native/nativeCompile/${{ steps.name-artifact.outputs.name }}
