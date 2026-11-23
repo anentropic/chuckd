@@ -11,11 +11,11 @@ workflows:
         - 'docker/setup-buildx-action@v4.4.1'
         - 'docker/setup-qemu-action@v4.4.0'
         - 'eregon/publish-release@v1.0.6'
-        - 'graalvm/setup-graalvm@v1.6.9'
+        - 'graalvm/setup-graalvm@v1.6.10'
         - 'softprops/action-gh-release@v3.0.4'
     '.github/workflows/claude-review.yml': []
     '.github/workflows/dependabot-automerge.yml':
-        - 'actions/create-github-app-token@v3.3.0'
+        - 'actions/create-github-app-token@v3.4.0'
     '.github/workflows/detect-release.yml':
         - 'actions/checkout@v7.0.1'
     '.github/workflows/homebrew.yml':
@@ -23,22 +23,22 @@ workflows:
     '.github/workflows/test-build.yml':
         - 'actions/checkout@v7.0.1'
         - 'enricomi/publish-unit-test-result-action@v2.26.0'
-        - 'graalvm/setup-graalvm@v1.6.9'
+        - 'graalvm/setup-graalvm@v1.6.10'
         - 'mig4/setup-bats@v1.2.0'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
     '.github/workflows/weekly-build.yml':
         - 'actions/checkout@v7.0.1'
-        - 'graalvm/setup-graalvm@v1.6.9'
+        - 'graalvm/setup-graalvm@v1.6.10'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
-    'actions/create-github-app-token@v3.3.0':
-        ref: 'v3.3.0'
-        commit: 'sha1-64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
+    'actions/create-github-app-token@v3.4.0':
+        ref: 'v3.4.0'
+        commit: 'sha1-f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc'
         owner_id: 44036562
         repo_id: 642580244
     'anentropic/update-homebrew-formula-action@fixes-for-linter':
@@ -81,9 +81,9 @@ dependencies:
         commit: 'sha1-01df127f5e9a3c26935118e22e738d95b59d10ce'
         owner_id: 168854
         repo_id: 239022338
-    'graalvm/setup-graalvm@v1.6.9':
-        ref: 'v1.6.9'
-        commit: 'sha1-d6eca2595046623d69d636041513c80abf745406'
+    'graalvm/setup-graalvm@v1.6.10':
+        ref: 'v1.6.10'
+        commit: 'sha1-60e76998d25690099182b796e99b8804da582d90'
         owner_id: 10176827
         repo_id: 443997241
     'mig4/setup-bats@v1.2.0':
