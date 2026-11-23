@@ -57,7 +57,7 @@ jobs:
           - os: ubuntu-24.04-arm  # ARM64 runner
             platform-name: Linux-aarch64
     steps:
-      - uses: graalvm/setup-graalvm@v1.6.9
+      - uses: graalvm/setup-graalvm@v1.6.10
         with:
           java-version: '21'
           distribution: 'graalvm'
